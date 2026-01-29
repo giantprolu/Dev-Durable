@@ -6,7 +6,9 @@ import vercel from '@astrojs/vercel';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://dev-durable.vercel.app',
-  output: 'static',
-  adapter: vercel(),
+  output: 'server',
+  adapter: vercel({
+    isr: false,
+  }),
   integrations: [sitemap()],
 });
