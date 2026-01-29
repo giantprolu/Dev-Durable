@@ -4,12 +4,21 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "prisma generate && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
-    "astro": "^5.16.15"
+    "@astrojs/vercel": "^9.0.4",
+    "@prisma/client": "^7.3.0",
+    "astro": "^5.16.15",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
+    "prisma": "^7.3.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6"
   }
 }
