@@ -8,7 +8,15 @@ export default defineConfig({
   site: 'https://dev-durable.vercel.app',
   output: 'server',
   adapter: vercel({
-    isr: false,
+    maxDuration: 60,
   }),
   integrations: [sitemap()],
+  vite: {
+    ssr: {
+      noExternal: ['@prisma/client', '@prisma/client/runtime/client'],
+    },
+    optimizeDeps: {
+      exclude: ['@prisma/client'],
+    },
+  },
 });
