@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
-import type { User } from '../generated/prisma/client';
+import type { User } from '@prisma/client';
 
 const SALT_ROUNDS = 12;
 const SESSION_DURATION_DAYS = 7;

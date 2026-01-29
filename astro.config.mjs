@@ -11,12 +11,4 @@ export default defineConfig({
     maxDuration: 60,
   }),
   integrations: [sitemap()],
-  vite: {
-    ssr: {
-      noExternal: ['@prisma/client', '@prisma/client/runtime/client'],
-    },
-    optimizeDeps: {
-      exclude: ['@prisma/client'],
-    },
-  },
 });
