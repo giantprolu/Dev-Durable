@@ -1,0 +1,92 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+---
+
+<Layout
+  title="À propos"
+  description="Découvrez Growing Graham, notre mission, nos valeurs et notre approche du développement durable."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">À propos</h1>
+      <p class="page-header__description">
+        Une conviction simple : le développement durable est un levier de transformation, pas une contrainte.
+      </p>
+    </div>
+  </div>
+
+  <!-- Mission -->
+  <Section variant="default">
+    <div class="about-grid">
+      <div class="about-content">
+        <h2>Notre mission</h2>
+        <p class="lead">
+          Accompagner les entreprises dans leur transition vers un modèle plus responsable, en alliant exigence et pragmatisme.
+        </p>
+        <p>
+          Growing Graham est né d'un constat : trop d'entreprises peinent à traduire leurs ambitions environnementales et sociales en actions concrètes. Entre les exigences réglementaires, les attentes des parties prenantes et la complexité des enjeux, il est facile de se perdre.
+        </p>
+        <p>
+          Notre rôle est de simplifier cette complexité. Nous apportons une expertise pointue et un regard extérieur pour aider chaque organisation à trouver sa propre voie vers la durabilité.
+        </p>
+      </div>
+      <div class="values-list">
+        <article class="card card--default card--padding-md">
+          <h3 class="value-title">Rigueur</h3>
+          <p class="value-description">Nos recommandations s'appuient sur des données, des méthodologies éprouvées et une veille constante des évolutions réglementaires.</p>
+        </article>
+        <article class="card card--default card--padding-md">
+          <h3 class="value-title">Pragmatisme</h3>
+          <p class="value-description">Nous proposons des solutions réalistes, adaptées aux ressources et aux contraintes de chaque entreprise.</p>
+        </article>
+        <article class="card card--default card--padding-md">
+          <h3 class="value-title">Transparence</h3>
+          <p class="value-description">Pas de greenwashing. Nous aidons nos clients à communiquer de manière honnête et vérifiable sur leurs engagements.</p>
+        </article>
+      </div>
+    </div>
+  </Section>
+
+  <!-- Approach -->
+  <Section variant="alt">
+    <div class="prose" style="margin-inline: auto;">
+      <h2>Notre approche</h2>
+      <p>
+        Chaque entreprise est unique, et sa démarche de développement durable doit l'être aussi. Nous ne vendons pas de solutions génériques mais construisons avec vous une stratégie sur-mesure.
+      </p>
+      <h3>Diagnostic</h3>
+      <p>
+        Nous commençons par comprendre votre organisation, vos enjeux et vos parties prenantes. Un état des lieux précis est indispensable avant toute action.
+      </p>
+      <h3>Stratégie</h3>
+      <p>
+        Ensemble, nous définissons des objectifs ambitieux mais atteignables, alignés avec votre stratégie globale et les attentes de votre secteur.
+      </p>
+      <h3>Mise en oeuvre</h3>
+      <p>
+        Nous vous accompagnons dans le déploiement opérationnel : plans d'action, indicateurs de suivi, formation des équipes et communication.
+      </p>
+      <h3>Évaluation</h3>
+      <p>
+        Nous mesurons les résultats, ajustons les actions et assurons une amélioration continue de votre démarche.
+      </p>
+    </div>
+  </Section>
+
+  <!-- CTA -->
+  <Section variant="dark" size="lg">
+    <div class="cta-content">
+      <h2>Discutons de vos enjeux</h2>
+      <p class="lead">
+        Chaque projet commence par une conversation. Prenons le temps d'échanger sur vos besoins.
+      </p>
+      <div class="cta-actions">
+        <Button href="/contact" size="lg">
+          Nous contacter
+        </Button>
+      </div>
+    </div>
+  </Section>
+</Layout>

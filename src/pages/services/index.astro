@@ -1,0 +1,83 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+
+const services = [
+  {
+    id: 'strategie-rse',
+    title: 'Stratégie RSE',
+    summary: 'Construisez une démarche de responsabilité sociétale structurée, alignée avec vos valeurs et créatrice de valeur.',
+    href: '/services/strategie-rse',
+  },
+  {
+    id: 'transition-ecologique',
+    title: 'Transition écologique',
+    summary: 'Réduisez votre impact environnemental avec un accompagnement sur le bilan carbone, l\'économie circulaire et l\'éco-conception.',
+    href: '/services/transition-ecologique',
+  },
+  {
+    id: 'formation',
+    title: 'Formation & sensibilisation',
+    summary: 'Engagez vos équipes avec des formations adaptées aux enjeux du développement durable.',
+    href: '/services/formation',
+  },
+];
+---
+
+<Layout
+  title="Services"
+  description="Découvrez nos services en développement durable : stratégie RSE, transition écologique, bilan carbone et formation."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">Nos services</h1>
+      <p class="page-header__description">
+        Un accompagnement structuré pour chaque étape de votre transformation durable.
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="services-list">
+      {services.map((service, index) => (
+        <article class="service-item reveal">
+          <div class="service-item__number">{String(index + 1).padStart(2, '0')}</div>
+          <div class="service-item__content">
+            <h2 class="service-item__title">{service.title}</h2>
+            <p class="service-item__summary">{service.summary}</p>
+            <Button href={service.href} variant="outline" size="sm">
+              En savoir plus
+            </Button>
+          </div>
+        </article>
+      ))}
+    </div>
+  </Section>
+
+  <Section variant="alt">
+    <div class="prose" style="margin-inline: auto;">
+      <h2>Notre approche</h2>
+      <p>
+        Chaque entreprise fait face à des enjeux spécifiques. C'est pourquoi nous privilégions une approche sur-mesure, fondée sur l'écoute et l'analyse de votre contexte.
+      </p>
+      <p>
+        Nos interventions s'articulent autour de quatre phases : diagnostic, définition de la stratégie, mise en œuvre opérationnelle et évaluation des résultats. Cette méthodologie garantit des actions concrètes et mesurables.
+      </p>
+    </div>
+  </Section>
+
+  <Section variant="dark" size="lg">
+    <div class="cta-content">
+      <h2>Un projet en tête ?</h2>
+      <p class="lead">
+        Échangeons sur vos besoins et construisons ensemble votre feuille de route.
+      </p>
+      <div class="cta-actions">
+        <Button href="/contact" size="lg">
+          Nous contacter
+        </Button>
+      </div>
+    </div>
+  </Section>
+</Layout>

@@ -1,0 +1,132 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+---
+
+<Layout
+  title="Contact"
+  description="Contactez Growing Graham pour discuter de vos projets en développement durable, RSE et transition écologique."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">Contact</h1>
+      <p class="page-header__description">
+        Un projet, une question ? Prenons le temps d'en discuter.
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="about-grid">
+      <div class="about-content">
+        <h2>Échangeons</h2>
+        <p>
+          Que vous soyez au début de votre réflexion ou que vous ayez un projet précis, nous sommes à votre écoute. Chaque collaboration commence par une conversation.
+        </p>
+        <p>
+          Remplissez le formulaire ci-contre ou envoyez-nous un email. Nous vous répondrons dans les meilleurs délais.
+        </p>
+        <div class="values-list">
+          <article class="card card--default card--padding-md">
+            <h3 class="value-title">Email</h3>
+            <p class="value-description">
+              <a href="mailto:contact@growinggraham.fr">contact@growinggraham.fr</a>
+            </p>
+          </article>
+          <article class="card card--default card--padding-md">
+            <h3 class="value-title">Réponse</h3>
+            <p class="value-description">Nous nous engageons à vous répondre sous 48h ouvrées.</p>
+          </article>
+        </div>
+      </div>
+
+      <div>
+        <form
+          class="form"
+          action="https://formspree.io/f/YOUR_FORM_ID"
+          method="POST"
+        >
+          <div class="form__row">
+            <div class="form__group">
+              <label for="prenom" class="form__label form__label--required">Prénom</label>
+              <input
+                type="text"
+                id="prenom"
+                name="prenom"
+                class="form__input"
+                required
+                autocomplete="given-name"
+              />
+            </div>
+            <div class="form__group">
+              <label for="nom" class="form__label form__label--required">Nom</label>
+              <input
+                type="text"
+                id="nom"
+                name="nom"
+                class="form__input"
+                required
+                autocomplete="family-name"
+              />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="email" class="form__label form__label--required">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form__input"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="entreprise" class="form__label">Entreprise</label>
+            <input
+              type="text"
+              id="entreprise"
+              name="entreprise"
+              class="form__input"
+              autocomplete="organization"
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="sujet" class="form__label form__label--required">Sujet</label>
+            <select id="sujet" name="sujet" class="form__select" required>
+              <option value="">Sélectionnez un sujet</option>
+              <option value="rse">Stratégie RSE</option>
+              <option value="carbone">Bilan carbone</option>
+              <option value="transition">Transition écologique</option>
+              <option value="formation">Formation</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+
+          <div class="form__group">
+            <label for="message" class="form__label form__label--required">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              class="form__textarea"
+              rows="6"
+              required
+            ></textarea>
+            <span class="form__hint">Décrivez brièvement votre projet ou votre question.</span>
+          </div>
+
+          <!-- Honeypot anti-spam -->
+          <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+
+          <Button type="submit" size="lg">
+            Envoyer le message
+          </Button>
+        </form>
+      </div>
+    </div>
+  </Section>
+</Layout>

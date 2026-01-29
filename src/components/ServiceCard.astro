@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  icon?: string;
+  href?: string;
+}
+
+const { title, description, icon, href } = Astro.props;
+
+const Tag = href ? 'a' : 'article';
+---
+
+<Tag class="service-card" href={href}>
+  {icon && (
+    <div class="service-card__icon" aria-hidden="true">
+      <Fragment set:html={icon} />
+    </div>
+  )}
+  <h3 class="service-card__title">{title}</h3>
+  <p class="service-card__description">{description}</p>
+  {href && (
+    <span class="service-card__link">
+      En savoir plus
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  )}
+</Tag>

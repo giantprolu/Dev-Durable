@@ -1,0 +1,62 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map((article) => ({
+    params: { id: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<Layout title={article.data.title} description={article.data.description}>
+  <div class="page-header">
+    <div class="page-header__container">
+      <div class="article-header">
+        <time class="article-header__meta" datetime={article.data.date.toISOString()}>
+          {formatDate(article.data.date)}
+        </time>
+        <h1 class="article-header__title">{article.data.title}</h1>
+        <p class="article-header__excerpt">{article.data.description}</p>
+        <div class="article-header__tags tag-list">
+          {article.data.tags.map((tag: string) => (
+            <a
+              href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`}
+              class="tag"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="article-cover">
+      <img
+        src={article.data.image}
+        alt={article.data.imageAlt}
+        width="1200"
+        height="514"
+      />
+    </div>
+    <article class="prose">
+      <Content />
+    </article>
+  </Section>
+</Layout>

@@ -1,0 +1,85 @@
+---
+const navItems = [
+  { label: 'Accueil', href: '/' },
+  { label: 'Services', href: '/services' },
+  { label: 'Articles', href: '/articles' },
+  { label: 'À propos', href: '/a-propos' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header" role="banner">
+  <div class="header__container">
+    <a href="/" class="header__logo" aria-label="Growing Graham - Retour à l'accueil">
+      <span class="header__logo-text">Growing Graham</span>
+    </a>
+
+    <nav class="header__nav" aria-label="Navigation principale">
+      <ul class="header__nav-list" role="list">
+        {navItems.map((item) => (
+          <li class="header__nav-item">
+            <a
+              href={item.href}
+              class:list={['header__nav-link', { 'is-active': currentPath === item.href }]}
+              aria-current={currentPath === item.href ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <button
+      class="header__menu-toggle"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Ouvrir le menu de navigation"
+    >
+      <span class="header__menu-icon" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav
+    id="mobile-menu"
+    class="header__mobile-nav"
+    aria-label="Navigation mobile"
+    hidden
+  >
+    <ul class="header__mobile-list" role="list">
+      {navItems.map((item) => (
+        <li class="header__mobile-item">
+          <a
+            href={item.href}
+            class:list={['header__mobile-link', { 'is-active': currentPath === item.href }]}
+            aria-current={currentPath === item.href ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const menuToggle = document.querySelector('.header__menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const header = document.querySelector('.header');
+
+  if (menuToggle && mobileMenu) {
+    menuToggle.addEventListener('click', () => {
+      const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+      menuToggle.setAttribute('aria-expanded', String(!isExpanded));
+      menuToggle.setAttribute(
+        'aria-label',
+        isExpanded ? 'Ouvrir le menu de navigation' : 'Fermer le menu de navigation'
+      );
+      mobileMenu.hidden = isExpanded;
+      header?.classList.toggle('is-menu-open', !isExpanded);
+    });
+  }
+</script>

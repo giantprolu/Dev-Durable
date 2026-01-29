@@ -1,0 +1,28 @@
+---
+interface Props {
+  id?: string;
+  variant?: 'default' | 'alt' | 'dark';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const {
+  id,
+  variant = 'default',
+  size = 'md',
+  class: className,
+} = Astro.props;
+
+const classes = [
+  'section',
+  `section--${variant}`,
+  `section--${size}`,
+  className,
+].filter(Boolean).join(' ');
+---
+
+<section id={id} class={classes}>
+  <div class="section__container">
+    <slot />
+  </div>
+</section>

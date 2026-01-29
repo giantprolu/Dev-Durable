@@ -1,0 +1,47 @@
+---
+import Button from './Button.astro';
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaHref?: string;
+  secondaryCtaText?: string;
+  secondaryCtaHref?: string;
+}
+
+const {
+  title,
+  subtitle,
+  ctaText,
+  ctaHref,
+  secondaryCtaText,
+  secondaryCtaHref,
+} = Astro.props;
+---
+
+<section class="hero">
+  <div class="hero__container">
+    <div class="hero__content">
+      <h1 class="hero__title">{title}</h1>
+      {subtitle && <p class="hero__subtitle">{subtitle}</p>}
+      {(ctaText || secondaryCtaText) && (
+        <div class="hero__actions">
+          {ctaText && ctaHref && (
+            <Button href={ctaHref} size="lg">
+              {ctaText}
+            </Button>
+          )}
+          {secondaryCtaText && secondaryCtaHref && (
+            <Button href={secondaryCtaHref} variant="outline" size="lg">
+              {secondaryCtaText}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+    <div class="hero__decoration" aria-hidden="true">
+      <slot name="decoration" />
+    </div>
+  </div>
+</section>

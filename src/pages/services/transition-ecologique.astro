@@ -1,0 +1,108 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+
+const deliverables = [
+  'Bilan carbone complet (scopes 1, 2 et 3)',
+  'Plan de réduction des émissions avec trajectoire',
+  'Diagnostic économie circulaire',
+  'Guide d\'éco-conception adapté à votre activité',
+  'Tableau de bord de suivi des indicateurs environnementaux',
+];
+
+const offerings = [
+  {
+    title: 'Bilan carbone',
+    description: 'Mesurez vos émissions de gaz à effet de serre selon la méthodologie Bilan Carbone® ou GHG Protocol. Identifiez vos postes d\'émissions prioritaires et définissez une trajectoire de réduction alignée avec les objectifs climatiques.',
+  },
+  {
+    title: 'Économie circulaire',
+    description: 'Repensez vos flux de matières pour réduire les déchets et optimiser l\'utilisation des ressources. Nous vous accompagnons dans l\'identification des opportunités de circularité adaptées à votre secteur.',
+  },
+  {
+    title: 'Éco-conception',
+    description: 'Intégrez les critères environnementaux dès la conception de vos produits et services. Analyse du cycle de vie, choix des matériaux, optimisation de la durabilité.',
+  },
+];
+---
+
+<Layout
+  title="Transition écologique"
+  description="Bilan carbone, économie circulaire, éco-conception : réduisez votre impact environnemental avec Growing Graham."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">Transition écologique</h1>
+      <p class="page-header__description">
+        Réduisez votre empreinte environnementale avec des actions concrètes et mesurables.
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="service-detail">
+      <div class="service-detail__main">
+        <div class="prose">
+          <h2>L'urgence d'agir</h2>
+          <p>
+            Le changement climatique et l'épuisement des ressources imposent aux entreprises de repenser leurs modèles. Au-delà des contraintes réglementaires, la transition écologique représente une opportunité de réduire les coûts, d'innover et de répondre aux attentes croissantes des parties prenantes.
+          </p>
+          <p>
+            Notre rôle est de vous aider à identifier les leviers d'action les plus pertinents pour votre activité et de vous accompagner dans leur mise en œuvre.
+          </p>
+        </div>
+
+        <div class="service-detail__offerings reveal">
+          <h3>Nos domaines d'intervention</h3>
+          {offerings.map((offering) => (
+            <article class="offering-item">
+              <h4 class="offering-item__title">{offering.title}</h4>
+              <p class="offering-item__description">{offering.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <aside class="service-detail__sidebar">
+        <div class="service-detail__sidebar-card">
+          <h3>Livrables</h3>
+          <ul class="deliverables-list">
+            {deliverables.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <Button href="/contact" size="lg" style="width: 100%;">
+          Demander un devis
+        </Button>
+      </aside>
+    </div>
+  </Section>
+
+  <Section variant="alt">
+    <div class="prose" style="margin-inline: auto;">
+      <h2>Une approche fondée sur les données</h2>
+      <p>
+        Toute démarche de transition écologique commence par une mesure rigoureuse. Nous utilisons des méthodologies reconnues (Bilan Carbone®, GHG Protocol, ACV) pour établir un diagnostic précis de votre situation.
+      </p>
+      <p>
+        Cette base factuelle permet ensuite de définir des objectifs de réduction réalistes et de prioriser les actions à fort impact. Le suivi régulier des indicateurs garantit l'atteinte des résultats et l'amélioration continue.
+      </p>
+    </div>
+  </Section>
+
+  <Section variant="dark" size="lg">
+    <div class="cta-content">
+      <h2>Engagez votre transition écologique</h2>
+      <p class="lead">
+        Commençons par un diagnostic de votre situation.
+      </p>
+      <div class="cta-actions">
+        <Button href="/contact" size="lg">
+          Nous contacter
+        </Button>
+      </div>
+    </div>
+  </Section>
+</Layout>

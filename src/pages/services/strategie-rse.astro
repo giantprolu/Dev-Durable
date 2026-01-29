@@ -1,0 +1,115 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+
+const deliverables = [
+  'Diagnostic RSE initial et cartographie des parties prenantes',
+  'Matrice de matérialité et identification des enjeux prioritaires',
+  'Feuille de route RSE avec objectifs et indicateurs',
+  'Plan de communication interne et externe',
+  'Accompagnement à la rédaction du rapport extra-financier',
+];
+
+const steps = [
+  {
+    number: '01',
+    title: 'Diagnostic',
+    description: 'Analyse de votre situation actuelle, identification des forces et axes d\'amélioration.',
+  },
+  {
+    number: '02',
+    title: 'Stratégie',
+    description: 'Définition des priorités, des objectifs et de la feuille de route RSE.',
+  },
+  {
+    number: '03',
+    title: 'Déploiement',
+    description: 'Mise en œuvre des actions, mobilisation des équipes et suivi des indicateurs.',
+  },
+  {
+    number: '04',
+    title: 'Évaluation',
+    description: 'Mesure des résultats, ajustements et préparation du reporting.',
+  },
+];
+---
+
+<Layout
+  title="Stratégie RSE"
+  description="Construisez une stratégie RSE structurée et créatrice de valeur. Accompagnement sur-mesure de Growing Graham."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">Stratégie RSE</h1>
+      <p class="page-header__description">
+        Structurez votre démarche de responsabilité sociétale pour en faire un levier de performance et de différenciation.
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="service-detail">
+      <div class="service-detail__main">
+        <div class="prose">
+          <h2>Pourquoi une stratégie RSE ?</h2>
+          <p>
+            La responsabilité sociétale des entreprises n'est plus une option. Face aux attentes croissantes des clients, des collaborateurs et des investisseurs, une démarche RSE structurée devient un facteur clé de compétitivité.
+          </p>
+          <p>
+            Mais une stratégie RSE efficace ne se résume pas à une liste de bonnes intentions. Elle doit être ancrée dans la réalité de votre entreprise, alignée avec votre stratégie globale et traduite en actions concrètes.
+          </p>
+
+          <h2>Notre accompagnement</h2>
+          <p>
+            Nous vous guidons à chaque étape, du diagnostic initial à la mise en œuvre opérationnelle. Notre approche privilégie le pragmatisme : des objectifs atteignables, des actions mesurables, des résultats tangibles.
+          </p>
+          <p>
+            Nous travaillons en étroite collaboration avec vos équipes pour garantir l'appropriation de la démarche et sa pérennité dans le temps.
+          </p>
+        </div>
+
+        <div class="service-detail__steps reveal">
+          <h3>Les étapes de l'accompagnement</h3>
+          <div class="steps-grid">
+            {steps.map((step) => (
+              <div class="step-item">
+                <span class="step-item__number">{step.number}</span>
+                <h4 class="step-item__title">{step.title}</h4>
+                <p class="step-item__description">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <aside class="service-detail__sidebar">
+        <div class="service-detail__sidebar-card">
+          <h3>Livrables</h3>
+          <ul class="deliverables-list">
+            {deliverables.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <Button href="/contact" size="lg" style="width: 100%;">
+          Demander un devis
+        </Button>
+      </aside>
+    </div>
+  </Section>
+
+  <Section variant="dark" size="lg">
+    <div class="cta-content">
+      <h2>Prêt à structurer votre démarche RSE ?</h2>
+      <p class="lead">
+        Échangeons sur votre situation et vos objectifs.
+      </p>
+      <div class="cta-actions">
+        <Button href="/contact" size="lg">
+          Prendre rendez-vous
+        </Button>
+      </div>
+    </div>
+  </Section>
+</Layout>

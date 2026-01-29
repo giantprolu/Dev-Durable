@@ -1,0 +1,73 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const allTags = [...new Set(articles.flatMap((article) => article.data.tags))].sort();
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<Layout
+  title="Articles"
+  description="Articles et ressources sur le développement durable, la RSE et la transition écologique."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">Articles</h1>
+      <p class="page-header__description">
+        Ressources, analyses et retours d'expérience sur le développement durable, la RSE et la transition écologique.
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <!-- Tags filter -->
+    <nav class="tag-list" aria-label="Filtrer par thématique">
+      {allTags.map((tag) => (
+        <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`} class="tag">
+          {tag}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Articles grid -->
+    <div class="articles-grid">
+      {articles.map((article) => (
+        <a href={`/articles/${article.id}`} class="article-card">
+          <div class="article-card__image">
+            <img
+              src={article.data.image}
+              alt={article.data.imageAlt}
+              loading="lazy"
+              width="800"
+              height="450"
+            />
+          </div>
+          <div class="article-card__content">
+            <div class="article-card__tags tag-list">
+              {article.data.tags.map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+            <h2 class="article-card__title">{article.data.title}</h2>
+            <p class="article-card__excerpt">{article.data.description}</p>
+            <time class="article-card__meta" datetime={article.data.date.toISOString()}>
+              {formatDate(article.data.date)}
+            </time>
+          </div>
+        </a>
+      ))}
+    </div>
+  </Section>
+</Layout>

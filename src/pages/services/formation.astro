@@ -1,0 +1,115 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+
+const formats = [
+  {
+    title: 'Ateliers de sensibilisation',
+    duration: '2 à 4 heures',
+    description: 'Sessions interactives pour comprendre les enjeux climatiques et environnementaux. Format adapté à tous les publics, du comité de direction aux équipes opérationnelles.',
+  },
+  {
+    title: 'Formations thématiques',
+    duration: '1 à 2 jours',
+    description: 'Approfondissement sur des sujets spécifiques : bilan carbone, économie circulaire, reporting extra-financier, achats responsables.',
+  },
+  {
+    title: 'Parcours sur-mesure',
+    duration: 'Variable',
+    description: 'Programme de formation adapté à vos enjeux et à votre contexte. Combinaison de modules théoriques et de mises en pratique.',
+  },
+];
+
+const themes = [
+  'Les fondamentaux du développement durable',
+  'Comprendre le changement climatique et ses impacts',
+  'La RSE en pratique : de la stratégie à l\'action',
+  'Bilan carbone : méthodologie et mise en œuvre',
+  'Économie circulaire : principes et opportunités',
+  'Communication responsable et lutte contre le greenwashing',
+];
+---
+
+<Layout
+  title="Formation & sensibilisation"
+  description="Formations en développement durable pour vos équipes : sensibilisation, RSE, bilan carbone, économie circulaire."
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">Formation & sensibilisation</h1>
+      <p class="page-header__description">
+        Mobilisez vos équipes autour des enjeux du développement durable.
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="service-detail">
+      <div class="service-detail__main">
+        <div class="prose">
+          <h2>L'engagement commence par la compréhension</h2>
+          <p>
+            Une démarche de développement durable ne peut réussir sans l'adhésion des équipes. Former et sensibiliser vos collaborateurs, c'est leur donner les clés pour comprendre les enjeux et devenir acteurs du changement.
+          </p>
+          <p>
+            Nos formations allient rigueur scientifique et pédagogie accessible. Nous adaptons le contenu et le format à votre public et à vos objectifs.
+          </p>
+        </div>
+
+        <div class="service-detail__formats reveal">
+          <h3>Nos formats d'intervention</h3>
+          <div class="formats-grid">
+            {formats.map((format) => (
+              <article class="format-item">
+                <h4 class="format-item__title">{format.title}</h4>
+                <span class="format-item__duration">{format.duration}</span>
+                <p class="format-item__description">{format.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <aside class="service-detail__sidebar">
+        <div class="service-detail__sidebar-card">
+          <h3>Thématiques</h3>
+          <ul class="deliverables-list">
+            {themes.map((theme) => (
+              <li>{theme}</li>
+            ))}
+          </ul>
+        </div>
+        <Button href="/contact" size="lg" style="width: 100%;">
+          Demander un programme
+        </Button>
+      </aside>
+    </div>
+  </Section>
+
+  <Section variant="alt">
+    <div class="prose" style="margin-inline: auto;">
+      <h2>Une pédagogie active</h2>
+      <p>
+        Nos formations privilégient l'interactivité et la mise en pratique. Études de cas, ateliers collaboratifs, quiz : chaque session est conçue pour favoriser l'appropriation des concepts et leur application concrète.
+      </p>
+      <p>
+        Nous pouvons également former des référents internes qui deviendront les relais de la démarche au sein de votre organisation.
+      </p>
+    </div>
+  </Section>
+
+  <Section variant="dark" size="lg">
+    <div class="cta-content">
+      <h2>Formez vos équipes</h2>
+      <p class="lead">
+        Discutons de vos besoins en formation et sensibilisation.
+      </p>
+      <div class="cta-actions">
+        <Button href="/contact" size="lg">
+          Nous contacter
+        </Button>
+      </div>
+    </div>
+  </Section>
+</Layout>

@@ -1,0 +1,18 @@
+{
+  "missionTitle": "Notre mission",
+  "missionText": "Accompagner les entreprises dans leur transition vers un modèle plus responsable, en alliant exigence et pragmatisme.\n\nGrowing Graham est né d'un constat : trop d'entreprises peinent à traduire leurs ambitions environnementales et sociales en actions concrètes.",
+  "values": [
+    {
+      "title": "Rigueur",
+      "description": "Nos recommandations s'appuient sur des données, des méthodologies éprouvées et une veille constante des évolutions réglementaires."
+    },
+    {
+      "title": "Pragmatisme",
+      "description": "Nous proposons des solutions réalistes, adaptées aux ressources et aux contraintes de chaque entreprise."
+    },
+    {
+      "title": "Transparence",
+      "description": "Pas de greenwashing. Nous aidons nos clients à communiquer de manière honnête et vérifiable sur leurs engagements."
+    }
+  ]
+}

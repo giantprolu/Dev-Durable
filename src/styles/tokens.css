@@ -1,0 +1,152 @@
+/* ==========================================================================
+   Design Tokens — Swiss Design System
+   Green-first, functional, WCAG 2.1 AA
+   ========================================================================== */
+
+:root {
+  /* ==========================================================================
+     COLOR PALETTE
+     ========================================================================== */
+
+  /* --- Neutral Tones (dominant) --- */
+  --color-white: #FAFAF8;
+  --color-cream: #F5F4F0;
+  --color-sand: #E8E6E0;
+  --color-stone: #D0CCC2;
+  --color-warm-gray: #8E887C;
+  --color-charcoal: #4A4740;
+  --color-ink: #2A2826;
+
+  /* --- Primary: Deep Forest Green (functional, not decorative) --- */
+  --color-primary-light: #3D7A4F;
+  --color-primary: #2A5C3A;
+  --color-primary-dark: #1B3E27;
+
+  /* --- Semantic Colors --- */
+  --color-success: #2A5C3A;
+  --color-warning: #B5882E;
+  --color-error: #A63D3D;
+  --color-info: #3A5666;
+
+  /* --- Background & Surface --- */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-cream);
+  --color-bg-tertiary: var(--color-sand);
+  --color-surface: var(--color-white);
+
+  /* --- Text Colors --- */
+  --color-text-primary: var(--color-ink);
+  --color-text-secondary: var(--color-charcoal);
+  --color-text-muted: var(--color-warm-gray);
+  --color-text-inverse: var(--color-white);
+
+  /* --- Border Colors --- */
+  --color-border-light: var(--color-sand);
+  --color-border: var(--color-stone);
+  --color-border-dark: var(--color-warm-gray);
+
+  /* ==========================================================================
+     TYPOGRAPHY — Single family, weight variations only
+     ========================================================================== */
+
+  --font-sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-heading: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Fluid sizes */
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 0.9375rem);
+  --font-size-base: clamp(1rem, 0.925rem + 0.375vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.3125rem);
+  --font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+  --font-size-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+  --font-size-4xl: clamp(2.25rem, 1.75rem + 2.5vw, 3.25rem);
+
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.75;
+
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+  --letter-spacing-wider: 0.04em;
+
+  --prose-width: 65ch;
+
+  /* ==========================================================================
+     SPACING — 8px grid
+     ========================================================================== */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  --section-padding-y: clamp(3rem, 8vw, 6rem);
+  --section-padding-x: clamp(1.5rem, 5vw, 3rem);
+
+  /* ==========================================================================
+     LAYOUT
+     ========================================================================== */
+
+  --container-sm: 40rem;
+  --container-md: 48rem;
+  --container-lg: 64rem;
+  --container-xl: 72rem;
+
+  --grid-columns: 12;
+  --grid-gutter: var(--space-6);
+
+  /* ==========================================================================
+     BORDERS — Sharp angles (Swiss design: rectangular, minimal rounding)
+     ========================================================================== */
+
+  --border-width: 1px;
+  --border-width-thick: 2px;
+
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-full: 2px;
+
+  /* ==========================================================================
+     TRANSITIONS — Functional only
+     ========================================================================== */
+
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+
+  /* ==========================================================================
+     Z-INDEX
+     ========================================================================== */
+
+  --z-base: 0;
+  --z-above: 1;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* ==========================================================================
+     FOCUS — Visible, functional, green
+     ========================================================================== */
+
+  --focus-ring-width: 2px;
+  --focus-ring-color: var(--color-primary);
+  --focus-ring-offset: 2px;
+}

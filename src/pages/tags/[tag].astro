@@ -1,0 +1,75 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  const allTags = [...new Set(articles.flatMap((article) => article.data.tags))];
+
+  return allTags.map((tag) => {
+    const slug = tag.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const filtered = articles
+      .filter((article) => article.data.tags.includes(tag))
+      .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+    return {
+      params: { tag: slug },
+      props: { tag, articles: filtered },
+    };
+  });
+}
+
+const { tag, articles } = Astro.props;
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<Layout
+  title={`Articles sur : ${tag}`}
+  description={`Tous les articles et ressources liés au thème « ${tag} ».`}
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">#{tag}</h1>
+      <p class="page-header__description">
+        {articles.length} article{articles.length > 1 ? 's' : ''} sur ce thème
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="articles-grid">
+      {articles.map((article) => (
+        <a href={`/articles/${article.id}`} class="article-card">
+          <div class="article-card__image">
+            <img
+              src={article.data.image}
+              alt={article.data.imageAlt}
+              loading="lazy"
+              width="800"
+              height="450"
+            />
+          </div>
+          <div class="article-card__content">
+            <div class="article-card__tags tag-list">
+              {article.data.tags.map((t: string) => (
+                <span class="tag">{t}</span>
+              ))}
+            </div>
+            <h2 class="article-card__title">{article.data.title}</h2>
+            <p class="article-card__excerpt">{article.data.description}</p>
+            <time class="article-card__meta" datetime={article.data.date.toISOString()}>
+              {formatDate(article.data.date)}
+            </time>
+          </div>
+        </a>
+      ))}
+    </div>
+  </Section>
+</Layout>
