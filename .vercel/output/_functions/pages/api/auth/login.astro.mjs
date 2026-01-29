@@ -1,4 +1,4 @@
-import { b as authenticateUser, c as createSession, g as getSessionCookie } from '../../../chunks/auth_DlAOnPhO.mjs';
+import { b as authenticateUser, c as createSession, g as getSessionCookie } from '../../../chunks/auth_BP93sYo0.mjs';
 export { renderers } from '../../../renderers.mjs';
 
 const prerender = false;
