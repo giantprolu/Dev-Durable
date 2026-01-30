@@ -82,3 +82,13 @@ model Media {
   size      Int
   createdAt DateTime @default(now())
 }
+
+model Comment {
+  id        String   @id @default(cuid())
+  articleId String
+  author    String
+  email     String
+  content   String   @db.Text
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

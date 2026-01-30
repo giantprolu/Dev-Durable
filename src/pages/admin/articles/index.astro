@@ -18,15 +18,48 @@ if (!user) {
   return Astro.redirect('/admin/login');
 }
 
-// Get articles
+// Search and pagination
+const ITEMS_PER_PAGE = 10;
+const pageParam = Astro.url.searchParams.get('page');
+const searchQuery = Astro.url.searchParams.get('q') || '';
+const currentPage = Math.max(1, parseInt(pageParam || '1', 10));
+
+// Build where clause for search
+const whereClause = searchQuery
+  ? {
+      OR: [
+        { title: { contains: searchQuery, mode: 'insensitive' as const } },
+        { description: { contains: searchQuery, mode: 'insensitive' as const } },
+        { slug: { contains: searchQuery, mode: 'insensitive' as const } },
+      ],
+    }
+  : {};
+
+// Get total count for pagination
+const totalArticles = await prisma.article.count({ where: whereClause });
+const totalPages = Math.ceil(totalArticles / ITEMS_PER_PAGE);
+
+// Get articles for current page
 const articles = await prisma.article.findMany({
+  where: whereClause,
   orderBy: { createdAt: 'desc' },
   include: {
     author: {
       select: { name: true, email: true },
     },
   },
+  skip: (currentPage - 1) * ITEMS_PER_PAGE,
+  take: ITEMS_PER_PAGE,
 });
+
+// Build URL helper for pagination with search
+function buildUrl(page: number) {
+  const params = new URLSearchParams();
+  if (searchQuery) params.set('q', searchQuery);
+  if (page > 1) params.set('page', String(page));
+  const queryString = params.toString();
+  return `/admin/articles${queryString ? '?' + queryString : ''}`;
+}
 ---
 
 <Layout title="Gestion des articles">
@@ -34,58 +67,128 @@ const articles = await prisma.article.findMany({
     <header class="admin-page__header">
       <div>
         <h1>Articles</h1>
-        <p>{articles.length} article{articles.length !== 1 ? 's' : ''}</p>
+        <p>{totalArticles} article{totalArticles !== 1 ? 's' : ''}</p>
       </div>
       <div class="admin-page__actions">
-        <a href="/admin" class="btn btn--outline">Retour</a>
-        <a href="/admin/articles/new" class="btn btn--primary">Nouvel article</a>
+        <a href="/admin" class="btn btn--outline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Retour
+        </a>
+        <a href="/admin/articles/new" class="btn btn--primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouvel article
+        </a>
       </div>
     </header>
 
+    <div class="search-bar">
+      <form action="/admin/articles" method="GET" class="search-form">
+        <div class="search-input-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input
+            type="search"
+            name="q"
+            placeholder="Rechercher par titre, description ou slug..."
+            value={searchQuery}
+            class="search-input"
+          />
+        </div>
+        <button type="submit" class="btn btn--primary btn--sm">Rechercher</button>
+        {searchQuery && (
+          <a href="/admin/articles" class="btn btn--outline btn--sm">Effacer</a>
+        )}
+      </form>
+      {searchQuery && (
+        <p class="search-results-info">
+          {totalArticles} résultat{totalArticles !== 1 ? 's' : ''} pour "{searchQuery}"
+        </p>
+      )}
+    </div>
+
     <div class="articles-list">
-      {articles.length === 0 ? (
+      {totalArticles === 0 ? (
         <div class="empty-state">
           <p>Aucun article pour le moment.</p>
           <a href="/admin/articles/new" class="btn btn--primary">Créer votre premier article</a>
         </div>
       ) : (
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Slug</th>
-              <th>Statut</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {articles.map((article) => (
+        <>
+          <table class="data-table">
+            <thead>
               <tr>
-                <td>
-                  <strong>{article.title}</strong>
-                  <br />
-                  <small>{article.description.substring(0, 60)}...</small>
-                </td>
-                <td><code>{article.slug}</code></td>
-                <td>
-                  <span class={`status-badge ${article.published ? 'status-badge--published' : 'status-badge--draft'}`}>
-                    {article.published ? 'Publié' : 'Brouillon'}
-                  </span>
-                </td>
-                <td>{new Date(article.createdAt).toLocaleDateString('fr-FR')}</td>
-                <td>
-                  <div class="action-buttons">
-                    <a href={`/admin/articles/${article.id}/edit`} class="btn btn--sm btn--outline">Modifier</a>
-                    <button class="btn btn--sm btn--danger delete-btn" data-id={article.id} data-title={article.title}>
-                      Supprimer
-                    </button>
-                  </div>
-                </td>
+                <th>Titre</th>
+                <th>Slug</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {articles.map((article) => (
+                <tr>
+                  <td>
+                    <strong>{article.title}</strong>
+                    <br />
+                    <small>{article.description.substring(0, 60)}...</small>
+                  </td>
+                  <td><code>{article.slug}</code></td>
+                  <td>
+                    <span class={`status-badge ${article.published ? 'status-badge--published' : 'status-badge--draft'}`}>
+                      {article.published ? 'Publié' : 'Brouillon'}
+                    </span>
+                  </td>
+                  <td>{new Date(article.createdAt).toLocaleDateString('fr-FR')}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <a href={`/articles/${article.slug}`} class="btn btn--sm btn--outline" title="Voir l'article" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        Voir
+                      </a>
+                      <a href={`/admin/articles/${article.id}/edit`} class="btn btn--sm btn--edit" title="Modifier l'article">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Modifier
+                      </a>
+                      <button class="btn btn--sm btn--danger delete-btn" data-id={article.id} data-title={article.title} title="Supprimer l'article">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Supprimer
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {totalPages > 1 && (
+            <nav class="pagination" aria-label="Pagination des articles">
+              <div class="pagination__info">
+                Page {currentPage} sur {totalPages}
+              </div>
+              <div class="pagination__buttons">
+                {currentPage > 1 && (
+                  <a href={buildUrl(currentPage - 1)} class="btn btn--sm btn--outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    Précédent
+                  </a>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <a
+                    href={buildUrl(page)}
+                    class={`btn btn--sm ${page === currentPage ? 'btn--primary' : 'btn--outline'}`}
+                  >
+                    {page}
+                  </a>
+                ))}
+                {currentPage < totalPages && (
+                  <a href={buildUrl(currentPage + 1)} class="btn btn--sm btn--outline">
+                    Suivant
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </a>
+                )}
+              </div>
+            </nav>
+          )}
+        </>
       )}
     </div>
   </div>
@@ -122,6 +225,56 @@ const articles = await prisma.article.findMany({
   .admin-page__actions {
     display: flex;
     gap: var(--space-2);
+  }
+
+  .search-bar {
+    margin-bottom: var(--space-6);
+  }
+
+  .search-form {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-10);
+    border: var(--border-width) solid var(--color-border-light);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .search-results-info {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
   }
 
   .empty-state {
@@ -183,16 +336,27 @@ const articles = await prisma.article.findMany({
   .action-buttons {
     display: flex;
     gap: var(--space-2);
+    flex-wrap: wrap;
   }
 
-  .btn--danger {
-    background: var(--color-error);
-    color: white;
-    border-color: var(--color-error);
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border-light);
   }
 
-  .btn--danger:hover {
-    background: #c0392b;
+  .pagination__info {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .pagination__buttons {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
   }
 </style>
 

@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { getSiteSettings } from '../lib/settings';
 
 interface Props {
   title: string;
@@ -11,9 +12,12 @@ interface Props {
   publishedDate?: Date;
 }
 
+// Fetch site settings from database
+const siteSettings = await getSiteSettings();
+
 const {
   title,
-  description = "Growing Graham - Services en développement durable, RSE et transition écologique pour les entreprises.",
+  description = siteSettings.siteDescription,
   ogImage = "/og-image.jpg",
   type = "website",
   publishedDate,
@@ -26,9 +30,9 @@ const siteUrl = Astro.site?.href || 'https://growinggraham.fr';
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "Growing Graham",
+  "name": siteSettings.siteName,
   "url": siteUrl,
-  "description": "Services en développement durable, RSE et transition écologique pour les entreprises.",
+  "description": siteSettings.siteDescription,
   "address": {
     "@type": "PostalAddress",
     "addressCountry": "FR"
@@ -38,19 +42,19 @@ const organizationSchema = {
 const webPageSchema = {
   "@context": "https://schema.org",
   "@type": type === "article" ? "Article" : "WebPage",
-  "name": `${title} | Growing Graham`,
+  "name": `${title} | ${siteSettings.siteName}`,
   "description": description,
   "url": canonicalURL,
   "publisher": {
     "@type": "Organization",
-    "name": "Growing Graham"
+    "name": siteSettings.siteName
   },
   ...(publishedDate && { "datePublished": publishedDate.toISOString() })
 };
 ---
 
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme={siteSettings.theme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -61,7 +65,7 @@ const webPageSchema = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- SEO Meta -->
-    <title>{title} | Growing Graham</title>
+    <title>{title} | {siteSettings.siteName}</title>
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonicalURL} />
@@ -69,14 +73,14 @@ const webPageSchema = {
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={`${title} | Growing Graham`} />
+    <meta property="og:title" content={`${title} | ${siteSettings.siteName}`} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="fr_FR" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={`${title} | Growing Graham`} />
+    <meta name="twitter:title" content={`${title} | ${siteSettings.siteName}`} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
@@ -99,13 +103,13 @@ const webPageSchema = {
       Aller au contenu principal
     </a>
 
-    <Header />
+    <Header siteName={siteSettings.siteName} />
 
     <main id="main-content" tabindex="-1">
       <slot />
     </main>
 
-    <Footer />
+    <Footer siteName={siteSettings.siteName} siteDescription={siteSettings.siteDescription} />
 
     <script>
       // Scroll reveal animation

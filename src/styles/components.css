@@ -409,6 +409,67 @@
 
 .btn--full { width: 100%; }
 
+/* Admin Button Variants — Clear visual distinction */
+.btn--edit {
+  background-color: var(--color-info);
+  border-color: var(--color-info);
+  color: white;
+}
+
+.btn--edit:hover {
+  background-color: #4A6B7C;
+  border-color: #4A6B7C;
+}
+
+.btn--danger {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  color: white;
+}
+
+.btn--danger:hover {
+  background-color: #8B3030;
+  border-color: #8B3030;
+}
+
+.btn--success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+
+.btn--success:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.btn--warning {
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+  color: white;
+}
+
+.btn--warning:hover {
+  background-color: #9A7426;
+  border-color: #9A7426;
+}
+
+/* Button with icon */
+.btn svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.btn--icon-only {
+  padding: var(--space-2);
+  aspect-ratio: 1;
+}
+
+.btn--icon-only.btn--sm {
+  padding: var(--space-1);
+}
+
 /* ==========================================================================
    CARD — Bordered, no shadows
    ========================================================================== */
@@ -704,7 +765,7 @@ a.article-card:focus-visible {
   max-width: var(--prose-width);
 }
 
-.article-header__tags { margin-top: var(--space-4); }
+.article-header__tags { margin-top: var(--space-4); margin-bottom: var(--space-6); }
 
 .article-cover {
   margin-bottom: var(--space-8);

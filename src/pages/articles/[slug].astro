@@ -8,10 +8,17 @@ import { prisma } from '../../lib/prisma';
 
 const { slug } = Astro.params;
 
+// Get article ID for comments (database articles only)
+let articleId: string | null = null;
+
 // First try to find in database
 let dbArticle = await prisma.article.findUnique({
   where: { slug, published: true },
 });
+
+if (dbArticle) {
+  articleId = dbArticle.id;
+}
 
 // If not found, try file-based articles
 let fileArticle = null;
@@ -129,6 +136,40 @@ function markdownToHtml(markdown: string): string {
         <FileContent />
       ) : null}
     </article>
+
+    {articleId && (
+      <section class="comments-section" data-article-id={articleId}>
+        <h2>Commentaires</h2>
+
+        <div class="comments-loader" id="comments-loader">
+          <div class="loader-spinner"></div>
+          <p>Chargement des commentaires...</p>
+        </div>
+
+        <div class="comments-list" id="comments-list" style="display: none;"></div>
+        <p class="no-comments" id="no-comments" style="display: none;">Aucun commentaire pour le moment. Soyez le premier à commenter !</p>
+
+        <form class="comment-form" id="comment-form">
+          <h3>Laisser un commentaire</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="comment-author">Nom *</label>
+              <input type="text" id="comment-author" name="author" required />
+            </div>
+            <div class="form-group">
+              <label for="comment-email">Email *</label>
+              <input type="email" id="comment-email" name="email" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="comment-content">Commentaire *</label>
+            <textarea id="comment-content" name="content" rows="4" required></textarea>
+          </div>
+          <div id="comment-message" class="form-message" style="display: none;"></div>
+          <button type="submit" class="btn btn--primary">Envoyer</button>
+        </form>
+      </section>
+    )}
   </Section>
 </Layout>
 
@@ -141,4 +182,234 @@ function markdownToHtml(markdown: string): string {
     width: 100%;
     height: auto;
   }
+
+  .comments-section {
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: var(--border-width) solid var(--color-border-light);
+  }
+
+  .comments-section h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-6);
+  }
+
+  .comments-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-8);
+    color: var(--color-text-secondary);
+  }
+
+  .loader-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border-light);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--space-3);
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .comment-item {
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border-light);
+    background: var(--color-surface);
+  }
+
+  .comment-item__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+  }
+
+  .comment-item__author {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+  }
+
+  .comment-item__date {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .comment-item__content {
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .no-comments {
+    color: var(--color-text-secondary);
+    font-style: italic;
+    margin-bottom: var(--space-8);
+  }
+
+  .comment-form {
+    padding: var(--space-6);
+    border: var(--border-width) solid var(--color-border-light);
+    background: var(--color-bg-secondary);
+  }
+
+  .comment-form h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-4);
+  }
+
+  .comment-form .form-row {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .comment-form .form-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .comment-form .form-group {
+    margin-bottom: var(--space-4);
+  }
+
+  .comment-form label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-1);
+  }
+
+  .comment-form input,
+  .comment-form textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-width) solid var(--color-border-light);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    background: var(--color-surface);
+  }
+
+  .comment-form input:focus,
+  .comment-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .comment-form textarea {
+    resize: vertical;
+  }
+
+  .comment-form .form-message {
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .comment-form .form-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .comment-form .form-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
 </style>
+
+<script>
+  const commentsSection = document.querySelector('.comments-section') as HTMLElement;
+
+  if (commentsSection) {
+    const articleId = commentsSection.dataset.articleId;
+    const loader = document.getElementById('comments-loader') as HTMLElement;
+    const commentsList = document.getElementById('comments-list') as HTMLElement;
+    const noComments = document.getElementById('no-comments') as HTMLElement;
+    const form = document.getElementById('comment-form') as HTMLFormElement;
+    const messageEl = document.getElementById('comment-message') as HTMLElement;
+
+    // Format date
+    function formatDate(dateStr: string): string {
+      return new Date(dateStr).toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
+
+    // Load comments
+    async function loadComments() {
+      try {
+        const response = await fetch(`/api/comments?articleId=${articleId}`);
+        const comments = await response.json();
+
+        loader.style.display = 'none';
+
+        if (comments.length === 0) {
+          noComments.style.display = 'block';
+        } else {
+          commentsList.innerHTML = comments.map((comment: any) => `
+            <div class="comment-item">
+              <div class="comment-item__header">
+                <span class="comment-item__author">${comment.author}</span>
+                <span class="comment-item__date">${formatDate(comment.createdAt)}</span>
+              </div>
+              <p class="comment-item__content">${comment.content}</p>
+            </div>
+          `).join('');
+          commentsList.style.display = 'flex';
+        }
+      } catch (error) {
+        loader.style.display = 'none';
+        noComments.textContent = 'Erreur lors du chargement des commentaires.';
+        noComments.style.display = 'block';
+      }
+    }
+
+    // Submit comment
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const author = (form.querySelector('#comment-author') as HTMLInputElement).value;
+      const email = (form.querySelector('#comment-email') as HTMLInputElement).value;
+      const content = (form.querySelector('#comment-content') as HTMLTextAreaElement).value;
+
+      try {
+        const response = await fetch('/api/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ articleId, author, email, content }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          messageEl.textContent = result.message;
+          messageEl.className = 'form-message success';
+          form.reset();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        messageEl.textContent = error instanceof Error ? error.message : 'Erreur lors de l\'envoi du commentaire';
+        messageEl.className = 'form-message error';
+      }
+
+      messageEl.style.display = 'block';
+    });
+
+    // Load comments on page load
+    loadComments();
+  }
+</script>

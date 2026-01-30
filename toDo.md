@@ -1,2 +1,9 @@
-- [ ] Sur la page article, mettre un espace entre les tags et le contenu de l'article
-- [ ] Ajouter un loader sur la page article lors du chargement des commentaires
+- [x] Sur la page article, mettre un espace entre les tags et le contenu de l'article
+- [x] Ajouter un loader sur la page article lors du chargement des commentaires
+- [x] sur la page Paramètres du site il faut que ça mette réllement a jour les infos du site
+- [x] Sur la page Paramètres du site, ajouter une option pour changer le thème du site (clair/sombre)
+- [x] sur la page /admin il faut pouvoir modifier la page services aussi
+- [x] revoir les boutons de la page admin pour que ce soit plus clair (visuellement)
+- [x] Ajouter une pagination sur la page admin des articles pas plus de 10 articles par page
+- [x] faire une page 404 personnalisée
+- [x] Ajouter un système de recherche sur la page admin des articles

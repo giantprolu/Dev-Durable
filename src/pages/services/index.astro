@@ -1,11 +1,13 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
 import Section from '../../components/Section.astro';
 import Button from '../../components/Button.astro';
+import { prisma } from '../../lib/prisma';
 
-const services = [
+// Default services
+const defaultServices = [
   {
     id: 'strategie-rse',
     title: 'Stratégie RSE',
@@ -25,6 +27,13 @@ const services = [
     href: '/services/formation',
   },
 ];
+
+// Get services from database or use defaults
+const servicesPage = await prisma.pageContent.findUnique({
+  where: { slug: 'services' },
+});
+
+const services = (servicesPage?.content as typeof defaultServices) || defaultServices;
 ---
 
 <Layout

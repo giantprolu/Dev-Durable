@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Page non trouvée" description="La page que vous recherchez n'existe pas.">
+  <div class="error-page">
+    <div class="error-page__content">
+      <div class="error-page__code">404</div>
+      <h1 class="error-page__title">Page non trouvée</h1>
+      <p class="error-page__description">
+        Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+      </p>
+      <div class="error-page__actions">
+        <a href="/" class="btn btn--primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Retour à l'accueil
+        </a>
+        <a href="/articles" class="btn btn--outline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Voir les articles
+        </a>
+        <a href="/contact" class="btn btn--outline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Nous contacter
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px);
+    padding: var(--space-8) var(--section-padding-x);
+    text-align: center;
+  }
+
+  .error-page__content {
+    max-width: 500px;
+  }
+
+  .error-page__code {
+    font-size: clamp(6rem, 20vw, 10rem);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    line-height: 1;
+    margin-bottom: var(--space-4);
+    opacity: 0.3;
+  }
+
+  .error-page__title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-4);
+  }
+
+  .error-page__description {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-8);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .error-page__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+</style>

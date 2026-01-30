@@ -1,4 +1,10 @@
 ---
+interface Props {
+  siteName?: string;
+}
+
+const { siteName = 'Growing Graham' } = Astro.props;
+
 const navItems = [
   { label: 'Accueil', href: '/' },
   { label: 'Services', href: '/services' },
@@ -12,8 +18,8 @@ const currentPath = Astro.url.pathname;
 
 <header class="header" role="banner">
   <div class="header__container">
-    <a href="/" class="header__logo" aria-label="Growing Graham - Retour à l'accueil">
-      <span class="header__logo-text">Growing Graham</span>
+    <a href="/" class="header__logo" aria-label={`${siteName} - Retour à l'accueil`}>
+      <span class="header__logo-text">{siteName}</span>
     </a>
 
     <nav class="header__nav" aria-label="Navigation principale">
