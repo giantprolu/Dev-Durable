@@ -55,7 +55,16 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
         <h1>Services</h1>
         <p>Modifiez le contenu des services affichés sur le site</p>
       </div>
-      <a href="/admin" class="btn btn--outline">Retour</a>
+      <div class="admin-page__actions">
+        <a href="/admin" class="btn btn--back">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Annuler
+        </a>
+        <button type="button" class="btn btn--primary" id="save-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Enregistrer
+        </button>
+      </div>
     </header>
 
     <div id="form-message" class="form-message" style="display: none;"></div>
@@ -103,9 +112,6 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
       ))}
     </div>
 
-    <div class="form-actions">
-      <button type="button" class="btn btn--primary" id="save-btn">Enregistrer les modifications</button>
-    </div>
   </div>
 </Layout>
 
@@ -134,6 +140,12 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
   .admin-page__header p {
     color: var(--color-text-secondary);
     margin: 0;
+  }
+
+  .admin-page__actions {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
   }
 
   .services-editor {
@@ -213,12 +225,6 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
-  }
-
-  .form-actions {
-    margin-top: var(--space-6);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border-light);
   }
 </style>
 

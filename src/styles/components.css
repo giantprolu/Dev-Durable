@@ -407,6 +407,19 @@
   background-color: var(--color-bg-secondary);
 }
 
+.btn--back {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.btn--back:hover {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}
+
 .btn--full { width: 100%; }
 
 /* Admin Button Variants — Clear visual distinction */

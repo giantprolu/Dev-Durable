@@ -10,7 +10,6 @@ export interface SiteSettings {
   twitterUrl: string;
   facebookUrl: string;
   instagramUrl: string;
-  theme: string;
 }
 
 const defaultSettings: SiteSettings = {
@@ -23,7 +22,6 @@ const defaultSettings: SiteSettings = {
   twitterUrl: '',
   facebookUrl: '',
   instagramUrl: '',
-  theme: 'light',
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
@@ -44,7 +42,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       twitterUrl: settings.twitterUrl || defaultSettings.twitterUrl,
       facebookUrl: settings.facebookUrl || defaultSettings.facebookUrl,
       instagramUrl: settings.instagramUrl || defaultSettings.instagramUrl,
-      theme: settings.theme || defaultSettings.theme,
     };
   } catch (error) {
     console.error('Error fetching site settings:', error);
