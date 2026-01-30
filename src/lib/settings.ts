@@ -13,7 +13,7 @@ export interface SiteSettings {
 }
 
 const defaultSettings: SiteSettings = {
-  siteName: 'Growing Graham',
+  siteName: 'AC-ingiénierie',
   siteDescription: 'Services en développement durable, RSE et transition écologique pour les entreprises.',
   contactEmail: '',
   contactPhone: '',

@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = 'Growing Graham <noreply@growinggraham.fr>';
+const FROM_EMAIL = 'AC-ingiénierie <noreply@AC-ingiénierie.fr>';
 
 export async function sendPasswordResetEmail(
   to: string,
@@ -12,7 +12,7 @@ export async function sendPasswordResetEmail(
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: [to],
-      subject: 'Réinitialisation de votre mot de passe - Growing Graham',
+      subject: 'Réinitialisation de votre mot de passe - AC-ingiénierie',
       html: `
         <!DOCTYPE html>
         <html lang="fr">
@@ -31,7 +31,7 @@ export async function sendPasswordResetEmail(
                         Réinitialisation de votre mot de passe
                       </h1>
                       <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.5; color: #4a4a4a;">
-                        Vous avez demandé à réinitialiser votre mot de passe pour votre compte Growing Graham.
+                        Vous avez demandé à réinitialiser votre mot de passe pour votre compte AC-ingiénierie.
                       </p>
                       <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.5; color: #4a4a4a;">
                         Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe :
@@ -47,7 +47,7 @@ export async function sendPasswordResetEmail(
                       </p>
                       <hr style="margin: 32px 0; border: none; border-top: 1px solid #e0e0e0;">
                       <p style="margin: 0; font-size: 12px; color: #999999;">
-                        Growing Graham - Services en développement durable
+                        AC-ingiénierie - Services en développement durable
                       </p>
                     </td>
                   </tr>
@@ -59,9 +59,9 @@ export async function sendPasswordResetEmail(
         </html>
       `,
       text: `
-Réinitialisation de votre mot de passe - Growing Graham
+Réinitialisation de votre mot de passe - AC-ingiénierie
 
-Vous avez demandé à réinitialiser votre mot de passe pour votre compte Growing Graham.
+Vous avez demandé à réinitialiser votre mot de passe pour votre compte AC-ingiénierie.
 
 Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe :
 ${resetUrl}
@@ -70,7 +70,7 @@ Ce lien expirera dans 1 heure.
 
 Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.
 
-Growing Graham - Services en développement durable
+AC-ingiénierie - Services en développement durable
       `.trim(),
     });
 
