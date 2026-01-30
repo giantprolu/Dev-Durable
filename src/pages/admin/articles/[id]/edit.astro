@@ -1,0 +1,401 @@
+---
+export const prerender = false;
+
+import Layout from '../../../../layouts/Layout.astro';
+import { validateSession, parseSessionCookie } from '../../../../lib/auth';
+import { prisma } from '../../../../lib/prisma';
+
+// Auth check
+const cookieHeader = Astro.request.headers.get('cookie');
+const token = parseSessionCookie(cookieHeader);
+
+if (!token) {
+  return Astro.redirect('/admin/login');
+}
+
+const user = await validateSession(token);
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get article
+const { id } = Astro.params;
+const article = await prisma.article.findUnique({ where: { id } });
+
+if (!article) {
+  return Astro.redirect('/admin/articles');
+}
+
+// Get available media for image selection
+const media = await prisma.media.findMany({
+  orderBy: { createdAt: 'desc' },
+});
+---
+
+<Layout title={`Modifier: ${article.title}`}>
+  <div class="admin-page">
+    <header class="admin-page__header">
+      <div>
+        <h1>Modifier l'article</h1>
+        <p>{article.title}</p>
+      </div>
+      <a href="/admin/articles" class="btn btn--outline">Retour</a>
+    </header>
+
+    <form id="article-form" class="article-form" data-id={article.id}>
+      <div id="form-message" class="form-message" style="display: none;"></div>
+
+      <div class="form-row">
+        <div class="form-group form-group--large">
+          <label for="title">Titre *</label>
+          <input type="text" id="title" name="title" required value={article.title} />
+        </div>
+        <div class="form-group">
+          <label for="slug">Slug *</label>
+          <input type="text" id="slug" name="slug" required pattern="[a-z0-9-]+" value={article.slug} />
+          <small>URL: /articles/<span id="slug-preview">{article.slug}</span></small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea id="description" name="description" rows="2" required>{article.description}</textarea>
+        <small>Résumé affiché dans la liste des articles</small>
+      </div>
+
+      <div class="form-group">
+        <label for="content">Contenu (Markdown) *</label>
+        <textarea id="content" name="content" rows="15" required>{article.content}</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="image">Image</label>
+          <div class="image-selector">
+            <input type="text" id="image" name="image" placeholder="URL de l'image" value={article.image || ''} />
+            {article.image && (
+              <div class="current-image">
+                <img src={article.image} alt="Image actuelle" />
+              </div>
+            )}
+            {media.length > 0 && (
+              <div class="media-grid">
+                {media.map((m) => (
+                  <button type="button" class={`media-item ${m.url === article.image ? 'selected' : ''}`} data-url={m.url}>
+                    <img src={m.url} alt={m.filename} />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div class="upload-section">
+              <input type="file" id="image-upload" accept="image/*" />
+              <button type="button" id="upload-btn" class="btn btn--sm btn--outline">Télécharger une image</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="imageAlt">Texte alternatif de l'image</label>
+          <input type="text" id="imageAlt" name="imageAlt" value={article.imageAlt || ''} />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="tags">Tags (séparés par des virgules)</label>
+        <input type="text" id="tags" name="tags" value={article.tags.join(', ')} />
+      </div>
+
+      <div class="form-group form-group--checkbox">
+        <input type="checkbox" id="published" name="published" checked={article.published} />
+        <label for="published">Publié</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary" id="submit-btn">Enregistrer les modifications</button>
+      </div>
+    </form>
+  </div>
+</Layout>
+
+<style>
+  .admin-page {
+    min-height: calc(100vh - 200px);
+    padding: var(--space-8) var(--section-padding-x);
+    max-width: var(--container-lg);
+    margin-inline: auto;
+  }
+
+  .admin-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-width-thick) solid var(--color-primary);
+  }
+
+  .admin-page__header h1 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-1);
+  }
+
+  .admin-page__header p {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .article-form {
+    background: var(--color-surface);
+    padding: var(--space-6);
+    border: var(--border-width) solid var(--color-border-light);
+  }
+
+  .form-row {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .form-row {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  .form-group {
+    margin-bottom: var(--space-5);
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-1);
+  }
+
+  .form-group input[type="text"],
+  .form-group textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-width) solid var(--color-border-light);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .form-group small {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .form-group--checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .form-group--checkbox label {
+    margin: 0;
+  }
+
+  .form-message {
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .form-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .form-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .form-actions {
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border-light);
+  }
+
+  .image-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .current-image {
+    max-width: 200px;
+  }
+
+  .current-image img {
+    width: 100%;
+    height: auto;
+  }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-2);
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-light);
+  }
+
+  .media-item {
+    background: none;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+
+  .media-item:hover,
+  .media-item.selected {
+    border-color: var(--color-primary);
+  }
+
+  .media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .upload-section {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .upload-section input[type="file"] {
+    display: none;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('article-form') as HTMLFormElement;
+  const articleId = form.dataset.id;
+  const messageEl = document.getElementById('form-message') as HTMLElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const slugInput = document.getElementById('slug') as HTMLInputElement;
+  const slugPreview = document.getElementById('slug-preview') as HTMLElement;
+  const imageInput = document.getElementById('image') as HTMLInputElement;
+  const imageUpload = document.getElementById('image-upload') as HTMLInputElement;
+  const uploadBtn = document.getElementById('upload-btn') as HTMLButtonElement;
+
+  // Update slug preview
+  slugInput.addEventListener('input', () => {
+    slugPreview.textContent = slugInput.value || '...';
+  });
+
+  // Media selection
+  document.querySelectorAll('.media-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.media-item').forEach((i) => i.classList.remove('selected'));
+      item.classList.add('selected');
+      imageInput.value = (item as HTMLElement).dataset.url || '';
+    });
+  });
+
+  // Image upload
+  uploadBtn.addEventListener('click', () => {
+    imageUpload.click();
+  });
+
+  imageUpload.addEventListener('change', async () => {
+    const file = imageUpload.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Téléchargement...';
+
+    try {
+      const response = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        imageInput.value = data.url;
+        alert('Image téléchargée ! URL copiée dans le champ.');
+      } else {
+        alert(data.error || 'Erreur lors du téléchargement');
+      }
+    } catch (error) {
+      alert('Erreur lors du téléchargement');
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'Télécharger une image';
+    }
+  });
+
+  // Form submission
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enregistrement...';
+
+    const tagsValue = (document.getElementById('tags') as HTMLInputElement).value;
+    const tags = tagsValue
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t);
+
+    const data = {
+      title: (document.getElementById('title') as HTMLInputElement).value,
+      slug: slugInput.value,
+      description: (document.getElementById('description') as HTMLTextAreaElement).value,
+      content: (document.getElementById('content') as HTMLTextAreaElement).value,
+      image: imageInput.value || null,
+      imageAlt: (document.getElementById('imageAlt') as HTMLInputElement).value || null,
+      tags,
+      published: (document.getElementById('published') as HTMLInputElement).checked,
+    };
+
+    try {
+      const response = await fetch(`/api/articles/${articleId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        messageEl.textContent = 'Article mis à jour !';
+        messageEl.className = 'form-message success';
+        messageEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enregistrer les modifications';
+      } else {
+        throw new Error(result.error || 'Erreur lors de la mise à jour');
+      }
+    } catch (error) {
+      messageEl.textContent = error instanceof Error ? error.message : 'Erreur lors de la mise à jour';
+      messageEl.className = 'form-message error';
+      messageEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enregistrer les modifications';
+    }
+  });
+</script>

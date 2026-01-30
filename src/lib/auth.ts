@@ -111,3 +111,98 @@ export function parseSessionCookie(cookieHeader: string | null): string | null {
 
   return cookies['session'] || null;
 }
+
+export async function updateUserPassword(
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return { success: false, error: 'Utilisateur non trouvé' };
+  }
+
+  const isValid = await verifyPassword(currentPassword, user.password);
+  if (!isValid) {
+    return { success: false, error: 'Mot de passe actuel incorrect' };
+  }
+
+  if (newPassword.length < 8) {
+    return { success: false, error: 'Le nouveau mot de passe doit contenir au moins 8 caractères' };
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+
+  return { success: true };
+}
+
+const PASSWORD_RESET_EXPIRY_HOURS = 1;
+
+export async function createPasswordResetToken(email: string): Promise<{ token: string; userId: string } | null> {
+  const user = await getUserByEmail(email);
+  if (!user) return null;
+
+  // Delete any existing tokens for this user
+  await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });
+
+  // Generate new token
+  const token = generateSessionToken();
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + PASSWORD_RESET_EXPIRY_HOURS);
+
+  await prisma.passwordResetToken.create({
+    data: {
+      token,
+      userId: user.id,
+      expiresAt,
+    },
+  });
+
+  return { token, userId: user.id };
+}
+
+export async function validatePasswordResetToken(token: string): Promise<string | null> {
+  const resetToken = await prisma.passwordResetToken.findUnique({
+    where: { token },
+  });
+
+  if (!resetToken) return null;
+
+  // Check if expired
+  if (resetToken.expiresAt < new Date()) {
+    await prisma.passwordResetToken.delete({ where: { id: resetToken.id } });
+    return null;
+  }
+
+  return resetToken.userId;
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+  if (newPassword.length < 8) {
+    return { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' };
+  }
+
+  const userId = await validatePasswordResetToken(token);
+  if (!userId) {
+    return { success: false, error: 'Lien de réinitialisation invalide ou expiré' };
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+
+  // Update password and delete token
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    }),
+    prisma.passwordResetToken.deleteMany({ where: { userId } }),
+    // Optionally invalidate all sessions for security
+    prisma.session.deleteMany({ where: { userId } }),
+  ]);
+
+  return { success: true };
+}

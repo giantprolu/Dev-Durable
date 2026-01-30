@@ -1,0 +1,144 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import { getCollection, render } from 'astro:content';
+import { prisma } from '../../lib/prisma';
+
+const { slug } = Astro.params;
+
+// First try to find in database
+let dbArticle = await prisma.article.findUnique({
+  where: { slug, published: true },
+});
+
+// If not found, try file-based articles
+let fileArticle = null;
+let FileContent = null;
+
+if (!dbArticle) {
+  const articles = await getCollection('articles');
+  fileArticle = articles.find((a) => a.id === slug);
+  if (fileArticle) {
+    const rendered = await render(fileArticle);
+    FileContent = rendered.Content;
+  }
+}
+
+// If neither found, redirect to articles page
+if (!dbArticle && !fileArticle) {
+  return Astro.redirect('/articles');
+}
+
+// Normalize article data
+const article = dbArticle
+  ? {
+      title: dbArticle.title,
+      description: dbArticle.description,
+      date: dbArticle.createdAt,
+      tags: dbArticle.tags,
+      image: dbArticle.image,
+      imageAlt: dbArticle.imageAlt,
+      content: dbArticle.content,
+      isMarkdown: true,
+    }
+  : {
+      title: fileArticle!.data.title,
+      description: fileArticle!.data.description,
+      date: fileArticle!.data.date,
+      tags: fileArticle!.data.tags,
+      image: fileArticle!.data.image,
+      imageAlt: fileArticle!.data.imageAlt,
+      content: null,
+      isMarkdown: false,
+    };
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+// Simple markdown to HTML conversion for database articles
+function markdownToHtml(markdown: string): string {
+  return markdown
+    // Headers
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    // Links
+    .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+    // Line breaks
+    .replace(/\n\n/gim, '</p><p>')
+    // Lists
+    .replace(/^\- (.*$)/gim, '<li>$1</li>')
+    // Wrap paragraphs
+    .replace(/^(?!<[hulo]|<li)(.*)/gim, '<p>$1</p>')
+    // Clean up empty paragraphs
+    .replace(/<p><\/p>/gim, '')
+    // Wrap consecutive li elements in ul
+    .replace(/(<li>.*<\/li>\n?)+/gim, '<ul>$&</ul>');
+}
+---
+
+<Layout title={article.title} description={article.description}>
+  <div class="page-header">
+    <div class="page-header__container">
+      <div class="article-header">
+        <time class="article-header__meta" datetime={article.date.toISOString()}>
+          {formatDate(article.date)}
+        </time>
+        <h1 class="article-header__title">{article.title}</h1>
+        <p class="article-header__excerpt">{article.description}</p>
+        <div class="article-header__tags tag-list">
+          {article.tags.map((tag: string) => (
+            <a
+              href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`}
+              class="tag"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Section variant="default">
+    {article.image && (
+      <div class="article-cover">
+        <img
+          src={article.image}
+          alt={article.imageAlt || ''}
+          width="1200"
+          height="514"
+        />
+      </div>
+    )}
+    <article class="prose">
+      {article.isMarkdown && article.content ? (
+        <Fragment set:html={markdownToHtml(article.content)} />
+      ) : FileContent ? (
+        <FileContent />
+      ) : null}
+    </article>
+  </Section>
+</Layout>
+
+<style>
+  .article-cover {
+    margin-bottom: var(--space-8);
+  }
+
+  .article-cover img {
+    width: 100%;
+    height: auto;
+  }
+</style>

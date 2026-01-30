@@ -1,0 +1,309 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { validateSession, parseSessionCookie } from '../../lib/auth';
+import { prisma } from '../../lib/prisma';
+
+// Auth check
+const cookieHeader = Astro.request.headers.get('cookie');
+const token = parseSessionCookie(cookieHeader);
+
+if (!token) {
+  return Astro.redirect('/admin/login');
+}
+
+const user = await validateSession(token);
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get media
+const media = await prisma.media.findMany({
+  orderBy: { createdAt: 'desc' },
+});
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' o';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' Mo';
+}
+---
+
+<Layout title="Médiathèque">
+  <div class="admin-page">
+    <header class="admin-page__header">
+      <div>
+        <h1>Médiathèque</h1>
+        <p>{media.length} fichier{media.length !== 1 ? 's' : ''}</p>
+      </div>
+      <div class="admin-page__actions">
+        <a href="/admin" class="btn btn--outline">Retour</a>
+        <label class="btn btn--primary upload-btn">
+          <input type="file" id="file-input" accept="image/*" multiple style="display: none;" />
+          Télécharger des images
+        </label>
+      </div>
+    </header>
+
+    <div id="upload-progress" class="upload-progress" style="display: none;">
+      <div class="upload-progress__bar">
+        <div class="upload-progress__fill"></div>
+      </div>
+      <p class="upload-progress__text">Téléchargement en cours...</p>
+    </div>
+
+    <div id="media-grid" class="media-grid">
+      {media.length === 0 ? (
+        <div class="empty-state">
+          <p>Aucun média pour le moment.</p>
+          <p>Téléchargez vos premières images.</p>
+        </div>
+      ) : (
+        media.map((m) => (
+          <div class="media-card" data-id={m.id}>
+            <div class="media-card__image">
+              <img src={m.url} alt={m.filename} loading="lazy" />
+            </div>
+            <div class="media-card__info">
+              <p class="media-card__name" title={m.filename}>{m.filename}</p>
+              <p class="media-card__meta">{formatFileSize(m.size)}</p>
+            </div>
+            <div class="media-card__actions">
+              <button class="btn btn--sm btn--outline copy-btn" data-url={m.url}>Copier URL</button>
+              <button class="btn btn--sm btn--danger delete-btn" data-id={m.id} data-filename={m.filename}>Supprimer</button>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .admin-page {
+    min-height: calc(100vh - 200px);
+    padding: var(--space-8) var(--section-padding-x);
+    max-width: var(--container-xl);
+    margin-inline: auto;
+  }
+
+  .admin-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-width-thick) solid var(--color-primary);
+  }
+
+  .admin-page__header h1 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-1);
+  }
+
+  .admin-page__header p {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .admin-page__actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .upload-btn {
+    cursor: pointer;
+  }
+
+  .upload-progress {
+    margin-bottom: var(--space-6);
+    padding: var(--space-4);
+    background: var(--color-bg-secondary);
+  }
+
+  .upload-progress__bar {
+    height: 8px;
+    background: var(--color-border-light);
+    margin-bottom: var(--space-2);
+  }
+
+  .upload-progress__fill {
+    height: 100%;
+    background: var(--color-primary);
+    width: 0;
+    transition: width 0.3s;
+  }
+
+  .upload-progress__text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-12) var(--space-4);
+    background: var(--color-bg-secondary);
+  }
+
+  .empty-state p {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .empty-state p:first-child {
+    margin-bottom: var(--space-2);
+  }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .media-card {
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border-light);
+    overflow: hidden;
+  }
+
+  .media-card__image {
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+  }
+
+  .media-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .media-card__info {
+    padding: var(--space-3);
+  }
+
+  .media-card__name {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .media-card__meta {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin: var(--space-1) 0 0;
+  }
+
+  .media-card__actions {
+    display: flex;
+    gap: var(--space-2);
+    padding: 0 var(--space-3) var(--space-3);
+  }
+
+  .btn--danger {
+    background: var(--color-error);
+    color: white;
+    border-color: var(--color-error);
+  }
+
+  .btn--danger:hover {
+    background: #c0392b;
+  }
+</style>
+
+<script>
+  const fileInput = document.getElementById('file-input') as HTMLInputElement;
+  const uploadProgress = document.getElementById('upload-progress') as HTMLElement;
+  const progressFill = uploadProgress.querySelector('.upload-progress__fill') as HTMLElement;
+  const progressText = uploadProgress.querySelector('.upload-progress__text') as HTMLElement;
+
+  // File upload
+  fileInput.addEventListener('change', async () => {
+    const files = fileInput.files;
+    if (!files || files.length === 0) return;
+
+    uploadProgress.style.display = 'block';
+    let completed = 0;
+
+    for (const file of files) {
+      progressText.textContent = `Téléchargement de ${file.name}... (${completed + 1}/${files.length})`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/api/media/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          alert(`Erreur pour ${file.name}: ${data.error}`);
+        }
+      } catch (error) {
+        alert(`Erreur lors du téléchargement de ${file.name}`);
+      }
+
+      completed++;
+      progressFill.style.width = `${(completed / files.length) * 100}%`;
+    }
+
+    progressText.textContent = 'Téléchargement terminé ! Actualisation...';
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  });
+
+  // Copy URL
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = (btn as HTMLElement).dataset.url;
+      if (url) {
+        await navigator.clipboard.writeText(url);
+        const originalText = btn.textContent;
+        btn.textContent = 'Copié !';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      }
+    });
+  });
+
+  // Delete media
+  document.querySelectorAll('.delete-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = (btn as HTMLElement).dataset.id;
+      const filename = (btn as HTMLElement).dataset.filename;
+
+      if (!confirm(`Êtes-vous sûr de vouloir supprimer "${filename}" ?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/media', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+
+        if (response.ok) {
+          const card = (btn as HTMLElement).closest('.media-card');
+          card?.remove();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Erreur lors de la suppression');
+        }
+      } catch (error) {
+        alert('Erreur lors de la suppression');
+      }
+    });
+  });
+</script>

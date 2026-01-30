@@ -1,0 +1,393 @@
+---
+export const prerender = false;
+
+import Layout from '../../../layouts/Layout.astro';
+import { validateSession, parseSessionCookie } from '../../../lib/auth';
+import { prisma } from '../../../lib/prisma';
+
+// Auth check
+const cookieHeader = Astro.request.headers.get('cookie');
+const token = parseSessionCookie(cookieHeader);
+
+if (!token) {
+  return Astro.redirect('/admin/login');
+}
+
+const user = await validateSession(token);
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get available media for image selection
+const media = await prisma.media.findMany({
+  orderBy: { createdAt: 'desc' },
+});
+---
+
+<Layout title="Nouvel article">
+  <div class="admin-page">
+    <header class="admin-page__header">
+      <div>
+        <h1>Nouvel article</h1>
+      </div>
+      <a href="/admin/articles" class="btn btn--outline">Annuler</a>
+    </header>
+
+    <form id="article-form" class="article-form">
+      <div id="form-message" class="form-message" style="display: none;"></div>
+
+      <div class="form-row">
+        <div class="form-group form-group--large">
+          <label for="title">Titre *</label>
+          <input type="text" id="title" name="title" required />
+        </div>
+        <div class="form-group">
+          <label for="slug">Slug *</label>
+          <input type="text" id="slug" name="slug" required pattern="[a-z0-9-]+" title="Lettres minuscules, chiffres et tirets uniquement" />
+          <small>URL: /articles/<span id="slug-preview">...</span></small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description *</label>
+        <textarea id="description" name="description" rows="2" required></textarea>
+        <small>Résumé affiché dans la liste des articles</small>
+      </div>
+
+      <div class="form-group">
+        <label for="content">Contenu (Markdown) *</label>
+        <textarea id="content" name="content" rows="15" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="image">Image</label>
+          <div class="image-selector">
+            <input type="text" id="image" name="image" placeholder="URL de l'image ou sélectionner ci-dessous" />
+            {media.length > 0 && (
+              <div class="media-grid">
+                {media.map((m) => (
+                  <button type="button" class="media-item" data-url={m.url}>
+                    <img src={m.url} alt={m.filename} />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div class="upload-section">
+              <input type="file" id="image-upload" accept="image/*" />
+              <button type="button" id="upload-btn" class="btn btn--sm btn--outline">Télécharger une image</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="imageAlt">Texte alternatif de l'image</label>
+          <input type="text" id="imageAlt" name="imageAlt" placeholder="Description de l'image" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="tags">Tags (séparés par des virgules)</label>
+        <input type="text" id="tags" name="tags" placeholder="Environnement, RSE, Carbone" />
+      </div>
+
+      <div class="form-group form-group--checkbox">
+        <input type="checkbox" id="published" name="published" />
+        <label for="published">Publier immédiatement</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary" id="submit-btn">Créer l'article</button>
+      </div>
+    </form>
+  </div>
+</Layout>
+
+<style>
+  .admin-page {
+    min-height: calc(100vh - 200px);
+    padding: var(--space-8) var(--section-padding-x);
+    max-width: var(--container-lg);
+    margin-inline: auto;
+  }
+
+  .admin-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-width-thick) solid var(--color-primary);
+  }
+
+  .admin-page__header h1 {
+    font-size: var(--font-size-2xl);
+    margin: 0;
+  }
+
+  .article-form {
+    background: var(--color-surface);
+    padding: var(--space-6);
+    border: var(--border-width) solid var(--color-border-light);
+  }
+
+  .form-row {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .form-row {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  .form-group {
+    margin-bottom: var(--space-5);
+  }
+
+  .form-group--large {
+    grid-column: span 1;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--space-1);
+  }
+
+  .form-group input[type="text"],
+  .form-group textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-width) solid var(--color-border-light);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  .form-group small {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .form-group--checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .form-group--checkbox label {
+    margin: 0;
+  }
+
+  .form-message {
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .form-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .form-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .form-actions {
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border-light);
+  }
+
+  .image-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: var(--space-2);
+    max-height: 200px;
+    overflow-y: auto;
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-light);
+  }
+
+  .media-item {
+    background: none;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+
+  .media-item:hover,
+  .media-item.selected {
+    border-color: var(--color-primary);
+  }
+
+  .media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .upload-section {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .upload-section input[type="file"] {
+    display: none;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('article-form') as HTMLFormElement;
+  const messageEl = document.getElementById('form-message') as HTMLElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const titleInput = document.getElementById('title') as HTMLInputElement;
+  const slugInput = document.getElementById('slug') as HTMLInputElement;
+  const slugPreview = document.getElementById('slug-preview') as HTMLElement;
+  const imageInput = document.getElementById('image') as HTMLInputElement;
+  const imageUpload = document.getElementById('image-upload') as HTMLInputElement;
+  const uploadBtn = document.getElementById('upload-btn') as HTMLButtonElement;
+
+  // Auto-generate slug from title
+  titleInput.addEventListener('input', () => {
+    if (!slugInput.dataset.manual) {
+      const slug = titleInput.value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      slugInput.value = slug;
+      slugPreview.textContent = slug || '...';
+    }
+  });
+
+  slugInput.addEventListener('input', () => {
+    slugInput.dataset.manual = 'true';
+    slugPreview.textContent = slugInput.value || '...';
+  });
+
+  // Media selection
+  document.querySelectorAll('.media-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.media-item').forEach((i) => i.classList.remove('selected'));
+      item.classList.add('selected');
+      imageInput.value = (item as HTMLElement).dataset.url || '';
+    });
+  });
+
+  // Image upload
+  uploadBtn.addEventListener('click', () => {
+    imageUpload.click();
+  });
+
+  imageUpload.addEventListener('change', async () => {
+    const file = imageUpload.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Téléchargement...';
+
+    try {
+      const response = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        imageInput.value = data.url;
+        // Refresh to show new media would require page reload
+        alert('Image téléchargée ! URL copiée dans le champ.');
+      } else {
+        alert(data.error || 'Erreur lors du téléchargement');
+      }
+    } catch (error) {
+      alert('Erreur lors du téléchargement');
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'Télécharger une image';
+    }
+  });
+
+  // Form submission
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    messageEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Création...';
+
+    const tagsValue = (document.getElementById('tags') as HTMLInputElement).value;
+    const tags = tagsValue
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t);
+
+    const data = {
+      title: titleInput.value,
+      slug: slugInput.value,
+      description: (document.getElementById('description') as HTMLTextAreaElement).value,
+      content: (document.getElementById('content') as HTMLTextAreaElement).value,
+      image: imageInput.value || null,
+      imageAlt: (document.getElementById('imageAlt') as HTMLInputElement).value || null,
+      tags,
+      published: (document.getElementById('published') as HTMLInputElement).checked,
+    };
+
+    try {
+      const response = await fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        messageEl.textContent = 'Article créé ! Redirection...';
+        messageEl.className = 'form-message success';
+        messageEl.style.display = 'block';
+        setTimeout(() => {
+          window.location.href = '/admin/articles';
+        }, 1500);
+      } else {
+        throw new Error(result.error || 'Erreur lors de la création');
+      }
+    } catch (error) {
+      messageEl.textContent = error instanceof Error ? error.message : 'Erreur lors de la création';
+      messageEl.className = 'form-message error';
+      messageEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Créer l\'article';
+    }
+  });
+</script>

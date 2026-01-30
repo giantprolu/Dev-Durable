@@ -1,9 +1,2 @@
-- [x] rendre le site totalement responsive mobile et desktop et tablette
-- [x] ajouter des pages de services meme fictives (c'est une maquette)
-- [x] revoir le designe pour créer un design suisse (voir fichier design.md)
-- [x] ajouter des animations subtiles au scroll
-- [x] optimiser le SEO (balises, meta description, alt text, etc.)
-- [x] améliorer l'accessibilité (contraste, navigation clavier, etc.)
-- [x] intégrer un blog avec des articles exemples
-- [x] tester la performance du site et optimiser le temps de chargement
-- [x] crée un espace pour que quelquun puisse se connecter en admin et ajouter du contenu facilement (photos, textes, articles de blog, etc.)
+- [ ] Sur la page article, mettre un espace entre les tags et le contenu de l'article
+- [ ] Ajouter un loader sur la page article lors du chargement des commentaires

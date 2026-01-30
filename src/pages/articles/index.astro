@@ -1,15 +1,63 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
 import Section from '../../components/Section.astro';
 import { getCollection } from 'astro:content';
+import { prisma } from '../../lib/prisma';
 
-const articles = (await getCollection('articles')).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+// Get articles from database (published only)
+const dbArticles = await prisma.article.findMany({
+  where: { published: true },
+  orderBy: { createdAt: 'desc' },
+});
+
+// Get articles from file system (for backward compatibility)
+const fileArticles = await getCollection('articles');
+
+// Combine and normalize articles
+type NormalizedArticle = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  date: Date;
+  tags: string[];
+  image: string | null;
+  imageAlt: string | null;
+  source: 'db' | 'file';
+};
+
+const normalizedDbArticles: NormalizedArticle[] = dbArticles.map((a) => ({
+  id: a.id,
+  slug: a.slug,
+  title: a.title,
+  description: a.description,
+  date: a.createdAt,
+  tags: a.tags,
+  image: a.image,
+  imageAlt: a.imageAlt,
+  source: 'db',
+}));
+
+const normalizedFileArticles: NormalizedArticle[] = fileArticles.map((a) => ({
+  id: a.id,
+  slug: a.id,
+  title: a.data.title,
+  description: a.data.description,
+  date: a.data.date,
+  tags: a.data.tags,
+  image: a.data.image,
+  imageAlt: a.data.imageAlt,
+  source: 'file',
+}));
+
+// Combine all articles and sort by date
+const articles = [...normalizedDbArticles, ...normalizedFileArticles].sort(
+  (a, b) => b.date.getTime() - a.date.getTime()
 );
 
-const allTags = [...new Set(articles.flatMap((article) => article.data.tags))].sort();
+const allTags = [...new Set(articles.flatMap((article) => article.tags))].sort();
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('fr-FR', {
@@ -46,26 +94,28 @@ function formatDate(date: Date): string {
     <!-- Articles grid -->
     <div class="articles-grid">
       {articles.map((article) => (
-        <a href={`/articles/${article.id}`} class="article-card">
-          <div class="article-card__image">
-            <img
-              src={article.data.image}
-              alt={article.data.imageAlt}
-              loading="lazy"
-              width="800"
-              height="450"
-            />
-          </div>
+        <a href={`/articles/${article.slug}`} class="article-card">
+          {article.image && (
+            <div class="article-card__image">
+              <img
+                src={article.image}
+                alt={article.imageAlt || ''}
+                loading="lazy"
+                width="800"
+                height="450"
+              />
+            </div>
+          )}
           <div class="article-card__content">
             <div class="article-card__tags tag-list">
-              {article.data.tags.map((tag: string) => (
+              {article.tags.map((tag: string) => (
                 <span class="tag">{tag}</span>
               ))}
             </div>
-            <h2 class="article-card__title">{article.data.title}</h2>
-            <p class="article-card__excerpt">{article.data.description}</p>
-            <time class="article-card__meta" datetime={article.data.date.toISOString()}>
-              {formatDate(article.data.date)}
+            <h2 class="article-card__title">{article.title}</h2>
+            <p class="article-card__excerpt">{article.description}</p>
+            <time class="article-card__meta" datetime={article.date.toISOString()}>
+              {formatDate(article.date)}
             </time>
           </div>
         </a>

@@ -1,0 +1,226 @@
+---
+export const prerender = false;
+
+import Layout from '../../../layouts/Layout.astro';
+import { validateSession, parseSessionCookie } from '../../../lib/auth';
+import { prisma } from '../../../lib/prisma';
+
+// Auth check
+const cookieHeader = Astro.request.headers.get('cookie');
+const token = parseSessionCookie(cookieHeader);
+
+if (!token) {
+  return Astro.redirect('/admin/login');
+}
+
+const user = await validateSession(token);
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get articles
+const articles = await prisma.article.findMany({
+  orderBy: { createdAt: 'desc' },
+  include: {
+    author: {
+      select: { name: true, email: true },
+    },
+  },
+});
+---
+
+<Layout title="Gestion des articles">
+  <div class="admin-page">
+    <header class="admin-page__header">
+      <div>
+        <h1>Articles</h1>
+        <p>{articles.length} article{articles.length !== 1 ? 's' : ''}</p>
+      </div>
+      <div class="admin-page__actions">
+        <a href="/admin" class="btn btn--outline">Retour</a>
+        <a href="/admin/articles/new" class="btn btn--primary">Nouvel article</a>
+      </div>
+    </header>
+
+    <div class="articles-list">
+      {articles.length === 0 ? (
+        <div class="empty-state">
+          <p>Aucun article pour le moment.</p>
+          <a href="/admin/articles/new" class="btn btn--primary">Créer votre premier article</a>
+        </div>
+      ) : (
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Slug</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {articles.map((article) => (
+              <tr>
+                <td>
+                  <strong>{article.title}</strong>
+                  <br />
+                  <small>{article.description.substring(0, 60)}...</small>
+                </td>
+                <td><code>{article.slug}</code></td>
+                <td>
+                  <span class={`status-badge ${article.published ? 'status-badge--published' : 'status-badge--draft'}`}>
+                    {article.published ? 'Publié' : 'Brouillon'}
+                  </span>
+                </td>
+                <td>{new Date(article.createdAt).toLocaleDateString('fr-FR')}</td>
+                <td>
+                  <div class="action-buttons">
+                    <a href={`/admin/articles/${article.id}/edit`} class="btn btn--sm btn--outline">Modifier</a>
+                    <button class="btn btn--sm btn--danger delete-btn" data-id={article.id} data-title={article.title}>
+                      Supprimer
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .admin-page {
+    min-height: calc(100vh - 200px);
+    padding: var(--space-8) var(--section-padding-x);
+    max-width: var(--container-xl);
+    margin-inline: auto;
+  }
+
+  .admin-page__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-width-thick) solid var(--color-primary);
+  }
+
+  .admin-page__header h1 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-1);
+  }
+
+  .admin-page__header p {
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .admin-page__actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-12) var(--space-4);
+    background: var(--color-bg-secondary);
+  }
+
+  .empty-state p {
+    margin-bottom: var(--space-4);
+    color: var(--color-text-secondary);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .data-table th {
+    font-weight: var(--font-weight-medium);
+    background: var(--color-bg-secondary);
+  }
+
+  .data-table td small {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .data-table code {
+    font-size: var(--font-size-sm);
+    background: var(--color-bg-secondary);
+    padding: 0.1em 0.4em;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .status-badge--published {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .status-badge--draft {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .btn--danger {
+    background: var(--color-error);
+    color: white;
+    border-color: var(--color-error);
+  }
+
+  .btn--danger:hover {
+    background: #c0392b;
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.delete-btn').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      const target = e.target as HTMLButtonElement;
+      const id = target.dataset.id;
+      const title = target.dataset.title;
+
+      if (!confirm(`Êtes-vous sûr de vouloir supprimer "${title}" ?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/articles/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Erreur lors de la suppression');
+        }
+      } catch (error) {
+        alert('Erreur lors de la suppression');
+      }
+    });
+  });
+</script>
