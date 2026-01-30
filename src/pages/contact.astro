@@ -3,7 +3,10 @@ export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
-import Button from '../components/Button.astro';
+import { getSiteSettings } from '../lib/settings';
+
+const settings = await getSiteSettings();
+const contactEmail = settings.contactEmail || 'contact@ac-ingenierie.fr';
 ---
 
 <Layout
@@ -33,7 +36,7 @@ import Button from '../components/Button.astro';
           <article class="card card--default card--padding-md">
             <h3 class="value-title">Email</h3>
             <p class="value-description">
-              <a href="mailto:contact@growinggraham.fr">contact@growinggraham.fr</a>
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
             </p>
           </article>
           <article class="card card--default card--padding-md">
@@ -124,9 +127,10 @@ import Button from '../components/Button.astro';
           <!-- Honeypot anti-spam -->
           <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
 
-          <Button type="submit" size="lg">
+          <button type="submit" class="btn btn--primary btn--lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Envoyer le message
-          </Button>
+          </button>
         </form>
       </div>
     </div>

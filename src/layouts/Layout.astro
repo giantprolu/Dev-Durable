@@ -109,7 +109,17 @@ const webPageSchema = {
       <slot />
     </main>
 
-    <Footer siteName={siteSettings.siteName} siteDescription={siteSettings.siteDescription} />
+    <Footer
+      siteName={siteSettings.siteName}
+      siteDescription={siteSettings.siteDescription}
+      contactEmail={siteSettings.contactEmail}
+      contactPhone={siteSettings.contactPhone}
+      address={siteSettings.address}
+      linkedinUrl={siteSettings.linkedinUrl}
+      twitterUrl={siteSettings.twitterUrl}
+      facebookUrl={siteSettings.facebookUrl}
+      instagramUrl={siteSettings.instagramUrl}
+    />
 
     <script>
       // Scroll reveal animation

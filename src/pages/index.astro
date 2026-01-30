@@ -7,9 +7,12 @@ import Section from '../components/Section.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
+import { prisma } from '../lib/prisma';
 
-const services = [
+// Default services with icons (icons are kept locally as they're not easily CMS-editable)
+const defaultServices = [
   {
+    id: 'strategie-rse',
     title: 'Stratégie RSE',
     description: 'Définissez une stratégie de responsabilité sociétale alignée avec vos valeurs et les attentes de vos parties prenantes.',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -20,6 +23,7 @@ const services = [
     href: '/services/strategie-rse',
   },
   {
+    id: 'transition-ecologique',
     title: 'Transition écologique',
     description: 'Accompagnement vers une activité plus respectueuse de l\'environnement : bilan carbone, économie circulaire, éco-conception.',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -29,6 +33,7 @@ const services = [
     href: '/services/transition-ecologique',
   },
   {
+    id: 'formation',
     title: 'Formation & sensibilisation',
     description: 'Formez vos équipes aux enjeux du développement durable et engagez-les dans votre démarche de transformation.',
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -40,6 +45,32 @@ const services = [
     href: '/services/formation',
   },
 ];
+
+// Get services from database
+const servicesPage = await prisma.pageContent.findUnique({
+  where: { slug: 'services' },
+});
+
+// Merge database content with default icons
+type DbService = { id: string; title: string; summary: string; href: string };
+const dbServices = servicesPage?.content as DbService[] | null;
+
+const services = dbServices
+  ? dbServices.map((dbService) => {
+      const defaultService = defaultServices.find((s) => s.id === dbService.id);
+      return {
+        title: dbService.title,
+        description: dbService.summary,
+        icon: defaultService?.icon || defaultServices[0].icon,
+        href: dbService.href,
+      };
+    })
+  : defaultServices.map((s) => ({
+      title: s.title,
+      description: s.description,
+      icon: s.icon,
+      href: s.href,
+    }));
 
 const values = [
   {
@@ -127,7 +158,7 @@ const values = [
         Discutons de vos enjeux et de la manière dont nous pouvons vous accompagner.
       </p>
       <div class="cta-actions">
-        <Button href="/contact" size="lg">
+        <Button href="/contact" variant="cta" size="lg">
           Prendre rendez-vous
         </Button>
       </div>

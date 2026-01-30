@@ -58,8 +58,12 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
       <div class="admin-page__actions">
         <a href="/admin" class="btn btn--back">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          Annuler
+          Retour
         </a>
+        <button type="button" class="btn btn--outline" id="add-service-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter un service
+        </button>
         <button type="button" class="btn btn--primary" id="save-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Enregistrer
@@ -69,12 +73,15 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
 
     <div id="form-message" class="form-message" style="display: none;"></div>
 
-    <div class="services-editor">
+    <div class="services-editor" id="services-editor">
       {services.map((service, index) => (
         <div class="service-editor" data-index={index}>
           <div class="service-editor__header">
             <span class="service-editor__number">{String(index + 1).padStart(2, '0')}</span>
-            <h3>{service.title}</h3>
+            <h3 class="service-editor__title">{service.title}</h3>
+            <button type="button" class="btn btn--sm btn--danger delete-service-btn" title="Supprimer ce service">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
           </div>
 
           <div class="form-group">
@@ -175,9 +182,14 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     color: var(--color-primary);
   }
 
-  .service-editor__header h3 {
+  .service-editor__title {
     font-size: var(--font-size-lg);
     margin: 0;
+    flex: 1;
+  }
+
+  .delete-service-btn {
+    flex-shrink: 0;
   }
 
   .form-group {
@@ -230,12 +242,131 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
 
 <script>
   const saveBtn = document.getElementById('save-btn') as HTMLButtonElement;
+  const addServiceBtn = document.getElementById('add-service-btn') as HTMLButtonElement;
   const messageEl = document.getElementById('form-message') as HTMLElement;
+  const servicesEditor = document.getElementById('services-editor') as HTMLElement;
 
+  let serviceCount = document.querySelectorAll('.service-editor').length;
+
+  // Function to update service numbers
+  function updateServiceNumbers() {
+    const editors = document.querySelectorAll('.service-editor');
+    editors.forEach((editor, index) => {
+      const numberEl = editor.querySelector('.service-editor__number');
+      if (numberEl) {
+        numberEl.textContent = String(index + 1).padStart(2, '0');
+      }
+    });
+  }
+
+  // Function to create a new service editor
+  function createServiceEditor(index: number) {
+    const template = `
+      <div class="service-editor" data-index="${index}">
+        <div class="service-editor__header">
+          <span class="service-editor__number">${String(index + 1).padStart(2, '0')}</span>
+          <h3 class="service-editor__title">Nouveau service</h3>
+          <button type="button" class="btn btn--sm btn--danger delete-service-btn" title="Supprimer ce service">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="title-${index}">Titre du service</label>
+          <input
+            type="text"
+            id="title-${index}"
+            name="title"
+            value=""
+            data-field="title"
+            placeholder="Titre du service"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="summary-${index}">Description courte</label>
+          <textarea
+            id="summary-${index}"
+            name="summary"
+            rows="3"
+            data-field="summary"
+            placeholder="Description courte du service"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="href-${index}">Lien vers la page de détail</label>
+          <input
+            type="text"
+            id="href-${index}"
+            name="href"
+            value="/services/"
+            data-field="href"
+            placeholder="/services/mon-service"
+          />
+        </div>
+      </div>
+    `;
+
+    const div = document.createElement('div');
+    div.innerHTML = template.trim();
+    return div.firstChild as HTMLElement;
+  }
+
+  // Add new service
+  addServiceBtn.addEventListener('click', () => {
+    const newEditor = createServiceEditor(serviceCount);
+    servicesEditor.appendChild(newEditor);
+    serviceCount++;
+
+    // Scroll to the new service
+    newEditor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Focus the title input
+    const titleInput = newEditor.querySelector('[data-field="title"]') as HTMLInputElement;
+    setTimeout(() => titleInput?.focus(), 300);
+  });
+
+  // Delete service (using event delegation)
+  servicesEditor.addEventListener('click', (e) => {
+    const deleteBtn = (e.target as HTMLElement).closest('.delete-service-btn');
+    if (!deleteBtn) return;
+
+    const editor = deleteBtn.closest('.service-editor');
+    if (!editor) return;
+
+    const editors = document.querySelectorAll('.service-editor');
+    if (editors.length <= 1) {
+      alert('Vous devez garder au moins un service.');
+      return;
+    }
+
+    const title = (editor.querySelector('[data-field="title"]') as HTMLInputElement)?.value || 'ce service';
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${title}" ?`)) {
+      return;
+    }
+
+    editor.remove();
+    updateServiceNumbers();
+  });
+
+  // Update title in header when editing
+  servicesEditor.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target.dataset.field === 'title') {
+      const editor = target.closest('.service-editor');
+      const titleEl = editor?.querySelector('.service-editor__title');
+      if (titleEl) {
+        titleEl.textContent = target.value || 'Nouveau service';
+      }
+    }
+  });
+
+  // Save services
   saveBtn.addEventListener('click', async () => {
     messageEl.style.display = 'none';
     saveBtn.disabled = true;
-    saveBtn.textContent = 'Enregistrement...';
+    saveBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Enregistrement...';
 
     // Collect all service data
     const serviceEditors = document.querySelectorAll('.service-editor');
@@ -273,7 +404,7 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     } finally {
       messageEl.style.display = 'block';
       saveBtn.disabled = false;
-      saveBtn.textContent = 'Enregistrer les modifications';
+      saveBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Enregistrer';
     }
   });
 </script>
