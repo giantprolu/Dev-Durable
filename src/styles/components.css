@@ -470,75 +470,79 @@ a.footer__contact-item:hover {
 }
 
 .btn--cta {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-ink);
+  background-color: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-primary);
 }
 
 .btn--cta:hover {
+  background-color: var(--color-white);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn--back {
+  background-color: var(--color-white);
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+  font-weight: var(--font-weight-bold);
+}
+
+.btn--back:hover {
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-white);
+}
+
+.btn--full { width: 100%; }
+
+/* Admin Button Variants — Clear visual distinction, brutalist style */
+.btn--edit {
   background-color: var(--color-white);
   border-color: var(--color-ink);
   color: var(--color-ink);
 }
 
-.btn--back {
-  background-color: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
-}
-
-.btn--back:hover {
-  background-color: var(--color-bg-tertiary);
-  border-color: var(--color-text-secondary);
-  color: var(--color-text-primary);
-}
-
-.btn--full { width: 100%; }
-
-/* Admin Button Variants — Clear visual distinction */
-.btn--edit {
-  background-color: var(--color-info);
-  border-color: var(--color-info);
-  color: white;
-}
-
 .btn--edit:hover {
-  background-color: #4A6B7C;
-  border-color: #4A6B7C;
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-white);
 }
 
 .btn--danger {
-  background-color: var(--color-error);
+  background-color: var(--color-white);
   border-color: var(--color-error);
-  color: white;
+  color: var(--color-error);
 }
 
 .btn--danger:hover {
-  background-color: #8B3030;
-  border-color: #8B3030;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  color: var(--color-white);
 }
 
 .btn--success {
-  background-color: var(--color-success);
-  border-color: var(--color-success);
-  color: white;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-ink);
 }
 
 .btn--success:hover {
-  background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-primary);
 }
 
 .btn--warning {
-  background-color: var(--color-warning);
+  background-color: var(--color-white);
   border-color: var(--color-warning);
-  color: white;
+  color: var(--color-warning);
 }
 
 .btn--warning:hover {
-  background-color: #9A7426;
-  border-color: #9A7426;
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+  color: var(--color-white);
 }
 
 /* Button with icon */

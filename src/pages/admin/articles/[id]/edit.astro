@@ -324,8 +324,11 @@ const media = await prisma.media.findMany({
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
+  // Get Quill from window (loaded from CDN)
+  const QuillEditor = (window as any).Quill;
+
   // Initialize Quill editor
-  const quill = new Quill('#editor-container', {
+  const quill = new QuillEditor('#editor-container', {
     theme: 'snow',
     placeholder: 'Rédigez votre article ici...',
     modules: {

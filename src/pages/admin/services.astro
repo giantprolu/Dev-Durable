@@ -114,6 +114,7 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
               value={service.href}
               data-field="href"
             />
+            <small>Pages existantes : /services/strategie-rse, /services/transition-ecologique, /services/formation</small>
           </div>
         </div>
       ))}
@@ -221,6 +222,13 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     border-color: var(--color-primary);
   }
 
+  .form-group small {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
   .form-message {
     padding: var(--space-3);
     margin-bottom: var(--space-4);
@@ -304,6 +312,7 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
             data-field="href"
             placeholder="/services/mon-service"
           />
+          <small>Pages existantes : /services/strategie-rse, /services/transition-ecologique, /services/formation</small>
         </div>
       </div>
     `;
