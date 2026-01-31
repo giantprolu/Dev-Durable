@@ -322,13 +322,10 @@ const media = await prisma.media.findMany({
   }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<script>
-  // Get Quill from window (loaded from CDN)
-  const QuillEditor = (window as any).Quill;
-
+<script is:inline src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script is:inline>
   // Initialize Quill editor
-  const quill = new QuillEditor('#editor-container', {
+  var quill = new Quill('#editor-container', {
     theme: 'snow',
     placeholder: 'Rédigez votre article ici...',
     modules: {
@@ -345,57 +342,57 @@ const media = await prisma.media.findMany({
   });
 
   // Load existing content into Quill
-  const contentInput = document.getElementById('content') as HTMLInputElement;
-  if (contentInput.value) {
+  var contentInput = document.getElementById('content');
+  if (contentInput && contentInput.value) {
     quill.root.innerHTML = contentInput.value;
   }
 
-  const form = document.getElementById('article-form') as HTMLFormElement;
-  const articleId = form.dataset.id;
-  const messageEl = document.getElementById('form-message') as HTMLElement;
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
-  const slugInput = document.getElementById('slug') as HTMLInputElement;
-  const slugPreview = document.getElementById('slug-preview') as HTMLElement;
-  const imageInput = document.getElementById('image') as HTMLInputElement;
-  const imageUpload = document.getElementById('image-upload') as HTMLInputElement;
-  const uploadBtn = document.getElementById('upload-btn') as HTMLButtonElement;
+  var form = document.getElementById('article-form');
+  var articleId = form.dataset.id;
+  var messageEl = document.getElementById('form-message');
+  var submitBtn = document.getElementById('submit-btn');
+  var slugInput = document.getElementById('slug');
+  var slugPreview = document.getElementById('slug-preview');
+  var imageInput = document.getElementById('image');
+  var imageUpload = document.getElementById('image-upload');
+  var uploadBtn = document.getElementById('upload-btn');
 
   // Update slug preview
-  slugInput.addEventListener('input', () => {
+  slugInput.addEventListener('input', function() {
     slugPreview.textContent = slugInput.value || '...';
   });
 
   // Media selection
-  document.querySelectorAll('.media-item').forEach((item) => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.media-item').forEach((i) => i.classList.remove('selected'));
+  document.querySelectorAll('.media-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.media-item').forEach(function(i) { i.classList.remove('selected'); });
       item.classList.add('selected');
-      imageInput.value = (item as HTMLElement).dataset.url || '';
+      imageInput.value = item.dataset.url || '';
     });
   });
 
   // Image upload
-  uploadBtn.addEventListener('click', () => {
+  uploadBtn.addEventListener('click', function() {
     imageUpload.click();
   });
 
-  imageUpload.addEventListener('change', async () => {
-    const file = imageUpload.files?.[0];
+  imageUpload.addEventListener('change', async function() {
+    var file = imageUpload.files && imageUpload.files[0];
     if (!file) return;
 
-    const formData = new FormData();
+    var formData = new FormData();
     formData.append('file', file);
 
     uploadBtn.disabled = true;
     uploadBtn.textContent = 'Téléchargement...';
 
     try {
-      const response = await fetch('/api/media/upload', {
+      var response = await fetch('/api/media/upload', {
         method: 'POST',
         body: formData,
       });
 
-      const data = await response.json();
+      var data = await response.json();
 
       if (response.ok) {
         imageInput.value = data.url;
@@ -412,20 +409,20 @@ const media = await prisma.media.findMany({
   });
 
   // Form submission
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async function(e) {
     e.preventDefault();
     messageEl.style.display = 'none';
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enregistrement...';
 
-    const tagsValue = (document.getElementById('tags') as HTMLInputElement).value;
-    const tags = tagsValue
+    var tagsValue = document.getElementById('tags').value;
+    var tags = tagsValue
       .split(',')
-      .map((t) => t.trim())
-      .filter((t) => t);
+      .map(function(t) { return t.trim(); })
+      .filter(function(t) { return t; });
 
     // Get content from Quill editor
-    const editorContent = quill.root.innerHTML;
+    var editorContent = quill.root.innerHTML;
 
     // Validate content is not empty
     if (!editorContent || editorContent === '<p><br></p>') {
@@ -437,25 +434,25 @@ const media = await prisma.media.findMany({
       return;
     }
 
-    const data = {
-      title: (document.getElementById('title') as HTMLInputElement).value,
+    var articleData = {
+      title: document.getElementById('title').value,
       slug: slugInput.value,
-      description: (document.getElementById('description') as HTMLTextAreaElement).value,
+      description: document.getElementById('description').value,
       content: editorContent,
       image: imageInput.value || null,
-      imageAlt: (document.getElementById('imageAlt') as HTMLInputElement).value || null,
-      tags,
-      published: (document.getElementById('published') as HTMLInputElement).checked,
+      imageAlt: document.getElementById('imageAlt').value || null,
+      tags: tags,
+      published: document.getElementById('published').checked,
     };
 
     try {
-      const response = await fetch(`/api/articles/${articleId}`, {
+      var response = await fetch('/api/articles/' + articleId, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(articleData),
       });
 
-      const result = await response.json();
+      var result = await response.json();
 
       if (response.ok) {
         messageEl.textContent = 'Article mis à jour !';
@@ -467,7 +464,7 @@ const media = await prisma.media.findMany({
         throw new Error(result.error || 'Erreur lors de la mise à jour');
       }
     } catch (error) {
-      messageEl.textContent = error instanceof Error ? error.message : 'Erreur lors de la mise à jour';
+      messageEl.textContent = error.message || 'Erreur lors de la mise à jour';
       messageEl.className = 'form-message error';
       messageEl.style.display = 'block';
       submitBtn.disabled = false;

@@ -3,7 +3,6 @@ export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
 import Section from '../../components/Section.astro';
-import { getCollection } from 'astro:content';
 import { prisma } from '../../lib/prisma';
 
 // Get articles from database (published only)
@@ -12,10 +11,7 @@ const dbArticles = await prisma.article.findMany({
   orderBy: { createdAt: 'desc' },
 });
 
-// Get articles from file system (for backward compatibility)
-const fileArticles = await getCollection('articles');
-
-// Combine and normalize articles
+// Normalize articles
 type NormalizedArticle = {
   id: string;
   slug: string;
@@ -25,10 +21,9 @@ type NormalizedArticle = {
   tags: string[];
   image: string | null;
   imageAlt: string | null;
-  source: 'db' | 'file';
 };
 
-const normalizedDbArticles: NormalizedArticle[] = dbArticles.map((a) => ({
+const articles: NormalizedArticle[] = dbArticles.map((a) => ({
   id: a.id,
   slug: a.slug,
   title: a.title,
@@ -37,25 +32,7 @@ const normalizedDbArticles: NormalizedArticle[] = dbArticles.map((a) => ({
   tags: a.tags,
   image: a.image,
   imageAlt: a.imageAlt,
-  source: 'db',
 }));
-
-const normalizedFileArticles: NormalizedArticle[] = fileArticles.map((a) => ({
-  id: a.id,
-  slug: a.id,
-  title: a.data.title,
-  description: a.data.description,
-  date: a.data.date,
-  tags: a.data.tags,
-  image: a.data.image,
-  imageAlt: a.data.imageAlt,
-  source: 'file',
-}));
-
-// Combine all articles and sort by date
-const articles = [...normalizedDbArticles, ...normalizedFileArticles].sort(
-  (a, b) => b.date.getTime() - a.date.getTime()
-);
 
 const allTags = [...new Set(articles.flatMap((article) => article.tags))].sort();
 

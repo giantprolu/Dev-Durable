@@ -21,12 +21,15 @@ if (!user) {
 // Get existing page content or defaults
 const homePage = await prisma.pageContent.findUnique({ where: { slug: 'home' } });
 const aboutPage = await prisma.pageContent.findUnique({ where: { slug: 'about' } });
+const contactPage = await prisma.pageContent.findUnique({ where: { slug: 'contact' } });
 
 const homeContent = (homePage?.content as Record<string, string>) || {
   heroTitle: 'Accompagnons ensemble votre transition vers un modèle durable',
   heroSubtitle: 'AC-ingiénierie vous guide dans votre démarche de développement durable, RSE et transition écologique. Des solutions pragmatiques pour un impact positif et mesurable.',
   ctaText: 'Découvrir nos services',
   secondaryCtaText: 'Nous contacter',
+  aboutTitle: 'Pourquoi AC-ingiénierie ?',
+  aboutText: 'Nous croyons que la transition écologique et sociale est une opportunité de repenser en profondeur votre modèle d\'entreprise.',
 };
 
 const aboutContent = (aboutPage?.content as Record<string, string>) || {
@@ -34,14 +37,22 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
   subtitle: 'Une conviction simple : le développement durable est un levier de transformation, pas une contrainte.',
   content: '',
 };
+
+const contactContent = (contactPage?.content as Record<string, string>) || {
+  title: 'Contact',
+  subtitle: 'Un projet, une question ? Prenons le temps d\'en discuter.',
+  introTitle: 'Échangeons',
+  introText: 'Que vous soyez au début de votre réflexion ou que vous ayez un projet précis, nous sommes à votre écoute.',
+};
 ---
 
 <Layout title="Gestion des pages">
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
   <div class="admin-page">
     <header class="admin-page__header">
       <div>
-        <h1>Gestion des pages</h1>
-        <p>Modifiez le contenu des pages du site</p>
+        <h1>Pages</h1>
+        <p>Modifiez le contenu de toutes les pages du site</p>
       </div>
       <a href="/admin" class="btn btn--back">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -49,58 +60,146 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
       </a>
     </header>
 
+    <div class="page-tabs">
+      <button class="tab-btn active" data-tab="home">Accueil</button>
+      <button class="tab-btn" data-tab="about">À propos</button>
+      <button class="tab-btn" data-tab="contact">Contact</button>
+    </div>
+
     <div class="page-sections">
-      <section class="page-section">
-        <h2>Page d'accueil</h2>
+      <!-- HOME PAGE -->
+      <section class="page-section active" id="section-home">
+        <div class="section-header">
+          <h2>Page d'accueil</h2>
+          <a href="/" target="_blank" class="btn btn--outline btn--sm">Voir la page</a>
+        </div>
         <form id="home-form" class="page-form" data-slug="home">
           <div id="home-message" class="form-message" style="display: none;"></div>
 
-          <div class="form-group">
-            <label for="home-heroTitle">Titre principal</label>
-            <input type="text" id="home-heroTitle" name="heroTitle" value={homeContent.heroTitle} />
-          </div>
-
-          <div class="form-group">
-            <label for="home-heroSubtitle">Sous-titre</label>
-            <textarea id="home-heroSubtitle" name="heroSubtitle" rows="3">{homeContent.heroSubtitle}</textarea>
-          </div>
-
-          <div class="form-row">
+          <fieldset class="fieldset">
+            <legend>Section Hero</legend>
             <div class="form-group">
-              <label for="home-ctaText">Texte bouton principal</label>
-              <input type="text" id="home-ctaText" name="ctaText" value={homeContent.ctaText} />
+              <label for="home-heroTitle">Titre principal *</label>
+              <input type="text" id="home-heroTitle" name="heroTitle" value={homeContent.heroTitle} required />
+            </div>
+
+            <div class="form-group">
+              <label for="home-heroSubtitle">Sous-titre</label>
+              <textarea id="home-heroSubtitle" name="heroSubtitle" rows="3">{homeContent.heroSubtitle}</textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="home-ctaText">Bouton principal</label>
+                <input type="text" id="home-ctaText" name="ctaText" value={homeContent.ctaText} />
+              </div>
+              <div class="form-group">
+                <label for="home-secondaryCtaText">Bouton secondaire</label>
+                <input type="text" id="home-secondaryCtaText" name="secondaryCtaText" value={homeContent.secondaryCtaText} />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>Section À propos</legend>
+            <div class="form-group">
+              <label for="home-aboutTitle">Titre</label>
+              <input type="text" id="home-aboutTitle" name="aboutTitle" value={homeContent.aboutTitle} />
             </div>
             <div class="form-group">
-              <label for="home-secondaryCtaText">Texte bouton secondaire</label>
-              <input type="text" id="home-secondaryCtaText" name="secondaryCtaText" value={homeContent.secondaryCtaText} />
+              <label for="home-aboutText">Texte d'introduction</label>
+              <textarea id="home-aboutText" name="aboutText" rows="3">{homeContent.aboutText}</textarea>
             </div>
-          </div>
+          </fieldset>
 
-          <button type="submit" class="btn btn--primary">Enregistrer</button>
+          <button type="submit" class="btn btn--primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Enregistrer
+          </button>
         </form>
       </section>
 
-      <section class="page-section">
-        <h2>Page À propos</h2>
+      <!-- ABOUT PAGE -->
+      <section class="page-section" id="section-about">
+        <div class="section-header">
+          <h2>Page À propos</h2>
+          <a href="/a-propos" target="_blank" class="btn btn--outline btn--sm">Voir la page</a>
+        </div>
         <form id="about-form" class="page-form" data-slug="about">
           <div id="about-message" class="form-message" style="display: none;"></div>
 
-          <div class="form-group">
-            <label for="about-title">Titre</label>
-            <input type="text" id="about-title" name="title" value={aboutContent.title} />
-          </div>
+          <fieldset class="fieldset">
+            <legend>En-tête</legend>
+            <div class="form-group">
+              <label for="about-title">Titre *</label>
+              <input type="text" id="about-title" name="title" value={aboutContent.title} required />
+            </div>
 
-          <div class="form-group">
-            <label for="about-subtitle">Sous-titre</label>
-            <input type="text" id="about-subtitle" name="subtitle" value={aboutContent.subtitle} />
-          </div>
+            <div class="form-group">
+              <label for="about-subtitle">Sous-titre</label>
+              <input type="text" id="about-subtitle" name="subtitle" value={aboutContent.subtitle} />
+            </div>
+          </fieldset>
 
-          <div class="form-group">
-            <label for="about-content">Contenu (Markdown)</label>
-            <textarea id="about-content" name="content" rows="10">{aboutContent.content}</textarea>
-          </div>
+          <fieldset class="fieldset">
+            <legend>Contenu principal</legend>
+            <div class="form-group">
+              <label>Contenu de la page</label>
+              <div id="about-editor" class="quill-editor"></div>
+              <input type="hidden" id="about-content" name="content" value={aboutContent.content} />
+            </div>
+          </fieldset>
 
-          <button type="submit" class="btn btn--primary">Enregistrer</button>
+          <button type="submit" class="btn btn--primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Enregistrer
+          </button>
+        </form>
+      </section>
+
+      <!-- CONTACT PAGE -->
+      <section class="page-section" id="section-contact">
+        <div class="section-header">
+          <h2>Page Contact</h2>
+          <a href="/contact" target="_blank" class="btn btn--outline btn--sm">Voir la page</a>
+        </div>
+        <form id="contact-form" class="page-form" data-slug="contact">
+          <div id="contact-message" class="form-message" style="display: none;"></div>
+
+          <fieldset class="fieldset">
+            <legend>En-tête</legend>
+            <div class="form-group">
+              <label for="contact-title">Titre *</label>
+              <input type="text" id="contact-title" name="title" value={contactContent.title} required />
+            </div>
+
+            <div class="form-group">
+              <label for="contact-subtitle">Sous-titre</label>
+              <input type="text" id="contact-subtitle" name="subtitle" value={contactContent.subtitle} />
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>Section introduction</legend>
+            <div class="form-group">
+              <label for="contact-introTitle">Titre</label>
+              <input type="text" id="contact-introTitle" name="introTitle" value={contactContent.introTitle} />
+            </div>
+            <div class="form-group">
+              <label for="contact-introText">Texte</label>
+              <textarea id="contact-introText" name="introText" rows="3">{contactContent.introText}</textarea>
+            </div>
+          </fieldset>
+
+          <p class="info-note">
+            <strong>Note :</strong> L'email de contact et les réseaux sociaux se modifient dans
+            <a href="/admin/settings">Paramètres du site</a>.
+          </p>
+
+          <button type="submit" class="btn btn--primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Enregistrer
+          </button>
         </form>
       </section>
     </div>
@@ -119,7 +218,7 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
     padding-bottom: var(--space-6);
     border-bottom: var(--border-width-thick) solid var(--color-primary);
   }
@@ -134,6 +233,38 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
     margin: 0;
   }
 
+  /* Tabs */
+  .page-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: var(--space-6);
+    border-bottom: var(--border-width-thick) solid var(--color-ink);
+  }
+
+  .tab-btn {
+    padding: var(--space-3) var(--space-6);
+    background: var(--color-sand);
+    border: var(--border-width-thick) solid var(--color-ink);
+    border-bottom: none;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    margin-bottom: -4px;
+    transition: all 0.1s;
+  }
+
+  .tab-btn:hover {
+    background: var(--color-stone);
+  }
+
+  .tab-btn.active {
+    background: var(--color-white);
+    color: var(--color-ink);
+    border-bottom-color: var(--color-white);
+  }
+
+  /* Sections */
   .page-sections {
     display: flex;
     flex-direction: column;
@@ -141,16 +272,44 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
   }
 
   .page-section {
-    background: var(--color-surface);
+    display: none;
+    background: var(--color-white);
     padding: var(--space-6);
-    border: var(--border-width) solid var(--color-border-light);
+    border: var(--border-width-thick) solid var(--color-ink);
   }
 
-  .page-section h2 {
+  .page-section.active {
+    display: block;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 2px solid var(--color-sand);
+  }
+
+  .section-header h2 {
     font-size: var(--font-size-xl);
-    margin-bottom: var(--space-4);
-    padding-bottom: var(--space-2);
-    border-bottom: 1px solid var(--color-border-light);
+    margin: 0;
+  }
+
+  /* Fieldset */
+  .fieldset {
+    border: 2px solid var(--color-sand);
+    padding: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  .fieldset legend {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    color: var(--color-primary);
+    padding: 0 var(--space-2);
   }
 
   .form-row {
@@ -168,77 +327,161 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
     margin-bottom: var(--space-4);
   }
 
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+
   .form-group label {
     display: block;
-    font-weight: var(--font-weight-medium);
-    margin-bottom: var(--space-1);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-2);
+    color: var(--color-ink);
   }
 
   .form-group input,
   .form-group textarea {
     width: 100%;
-    padding: var(--space-2) var(--space-3);
-    border: var(--border-width) solid var(--color-border-light);
+    padding: var(--space-3);
+    border: var(--border-width) solid var(--color-border);
     font-size: var(--font-size-base);
     font-family: inherit;
+    background: var(--color-white);
   }
 
   .form-group textarea {
     resize: vertical;
+    min-height: 100px;
   }
 
   .form-group input:focus,
   .form-group textarea:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: var(--color-ink);
+  }
+
+  /* Quill Editor */
+  .quill-editor {
+    height: 300px;
+    background: var(--color-white);
+  }
+
+  .ql-toolbar.ql-snow {
+    border: var(--border-width) solid var(--color-border);
+    border-bottom: none;
+    background: var(--color-cream);
+  }
+
+  .ql-container.ql-snow {
+    border: var(--border-width) solid var(--color-border);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
   }
 
   .form-message {
-    padding: var(--space-3);
+    padding: var(--space-4);
     margin-bottom: var(--space-4);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    border: var(--border-width-thick) solid;
   }
 
   .form-message.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background: var(--color-primary);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
   }
 
   .form-message.error {
     background: #f8d7da;
     color: #721c24;
-    border: 1px solid #f5c6cb;
+    border-color: #721c24;
+  }
+
+  .info-note {
+    padding: var(--space-4);
+    background: var(--color-cream);
+    border-left: 4px solid var(--color-primary);
+    margin-bottom: var(--space-6);
+    font-size: var(--font-size-sm);
+  }
+
+  .info-note a {
+    color: var(--color-ink);
   }
 </style>
 
-<script>
-  document.querySelectorAll('.page-form').forEach((form) => {
-    form.addEventListener('submit', async (e) => {
+<script is:inline src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script is:inline>
+  // Tab switching
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var sections = document.querySelectorAll('.page-section');
+
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabName = btn.dataset.tab;
+
+      tabBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      sections.forEach(function(s) { s.classList.remove('active'); });
+      document.getElementById('section-' + tabName).classList.add('active');
+    });
+  });
+
+  // Initialize Quill for about page
+  var aboutEditor = new Quill('#about-editor', {
+    theme: 'snow',
+    placeholder: 'Rédigez le contenu de la page...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['blockquote'],
+        ['link'],
+        ['clean']
+      ]
+    }
+  });
+
+  // Load existing content
+  var aboutContentInput = document.getElementById('about-content');
+  if (aboutContentInput && aboutContentInput.value) {
+    aboutEditor.root.innerHTML = aboutContentInput.value;
+  }
+
+  // Form submissions
+  document.querySelectorAll('.page-form').forEach(function(form) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      const formEl = e.target as HTMLFormElement;
-      const slug = formEl.dataset.slug;
-      const messageEl = document.getElementById(`${slug}-message`) as HTMLElement;
-      const submitBtn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement;
+      var slug = form.dataset.slug;
+      var messageEl = document.getElementById(slug + '-message');
+      var submitBtn = form.querySelector('button[type="submit"]');
+
+      // If this is the about form, get content from Quill
+      if (slug === 'about') {
+        aboutContentInput.value = aboutEditor.root.innerHTML;
+      }
 
       messageEl.style.display = 'none';
       submitBtn.disabled = true;
       submitBtn.textContent = 'Enregistrement...';
 
-      const formData = new FormData(formEl);
-      const content: Record<string, string> = {};
-      formData.forEach((value, key) => {
+      var formData = new FormData(form);
+      var content = {};
+      formData.forEach(function(value, key) {
         content[key] = value.toString();
       });
 
       try {
-        const response = await fetch(`/api/pages/${slug}`, {
+        var response = await fetch('/api/pages/' + slug, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content }),
+          body: JSON.stringify({ content: content }),
         });
 
-        const result = await response.json();
+        var result = await response.json();
 
         if (response.ok) {
           messageEl.textContent = 'Modifications enregistrées !';
@@ -247,12 +490,12 @@ const aboutContent = (aboutPage?.content as Record<string, string>) || {
           throw new Error(result.error || 'Erreur lors de la sauvegarde');
         }
       } catch (error) {
-        messageEl.textContent = error instanceof Error ? error.message : 'Erreur lors de la sauvegarde';
+        messageEl.textContent = error.message || 'Erreur lors de la sauvegarde';
         messageEl.className = 'form-message error';
       } finally {
         messageEl.style.display = 'block';
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Enregistrer';
+        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Enregistrer';
       }
     });
   });
