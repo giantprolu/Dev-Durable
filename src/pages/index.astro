@@ -51,6 +51,24 @@ const servicesPage = await prisma.pageContent.findUnique({
   where: { slug: 'services' },
 });
 
+// Get home page content from database
+const homePage = await prisma.pageContent.findUnique({
+  where: { slug: 'home' },
+});
+
+type HomeContent = {
+  heroTitle?: string;
+  heroSubtitle?: string;
+  ctaText?: string;
+  secondaryCtaText?: string;
+};
+
+const homeContent = (homePage?.content as HomeContent) || {};
+const heroTitle = homeContent.heroTitle || 'Accompagnons ensemble votre transition vers un modèle durable';
+const heroSubtitle = homeContent.heroSubtitle || 'AC-ingiénierie vous guide dans votre démarche de développement durable, RSE et transition écologique. Des solutions pragmatiques pour un impact positif et mesurable.';
+const heroCta = homeContent.ctaText || 'Découvrir nos services';
+const heroSecondaryCta = homeContent.secondaryCtaText || 'Nous contacter';
+
 // Merge database content with default icons
 type DbService = { id: string; title: string; summary: string; href: string };
 const dbServices = servicesPage?.content as DbService[] | null;
@@ -91,11 +109,11 @@ const values = [
 <Layout title="Accueil">
   <!-- Hero Section -->
   <Hero
-    title="Accompagnons ensemble votre transition vers un modèle durable"
-    subtitle="AC-ingiénierie vous guide dans votre démarche de développement durable, RSE et transition écologique. Des solutions pragmatiques pour un impact positif et mesurable."
-    ctaText="Découvrir nos services"
+    title={heroTitle}
+    subtitle={heroSubtitle}
+    ctaText={heroCta}
     ctaHref="/services"
-    secondaryCtaText="Nous contacter"
+    secondaryCtaText={heroSecondaryCta}
     secondaryCtaHref="/contact"
   />
 

@@ -1,18 +1,18 @@
 /* ==========================================================================
-   Component Styles — Swiss Design System
-   No shadows, no decorative effects, rectangular, functional
+   Component Styles — Modern Brutalist Design System
+   High contrast, bold borders, no rounding, functional
    ========================================================================== */
 
 /* ==========================================================================
-   HEADER
+   HEADER — Brutalist: Bold, minimal
    ========================================================================== */
 
 .header {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background-color: var(--color-bg-primary);
-  border-bottom: var(--border-width) solid var(--color-border-light);
+  background-color: var(--color-white);
+  border-bottom: var(--border-width-thick) solid var(--color-ink);
 }
 
 .header__container {
@@ -26,12 +26,12 @@
 
 .header__logo {
   text-decoration: none;
-  color: var(--color-primary);
+  color: var(--color-ink);
   transition: color var(--transition-fast);
 }
 
 .header__logo:hover {
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
 }
 
 .header__logo:focus-visible {
@@ -41,9 +41,10 @@
 
 .header__logo-text {
   font-family: var(--font-heading);
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-tight);
+  text-transform: uppercase;
 }
 
 .header__nav {
@@ -66,9 +67,11 @@
   position: relative;
   padding: var(--space-2) 0;
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-ink);
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
   transition: color var(--transition-fast);
 }
 
@@ -78,13 +81,13 @@
   bottom: 0;
   left: 0;
   width: 0;
-  height: 2px;
-  background-color: var(--color-primary);
-  transition: width var(--transition-base);
+  height: 3px;
+  background-color: var(--color-ink);
+  transition: width var(--transition-fast);
 }
 
 .header__nav-link:hover {
-  color: var(--color-primary);
+  color: var(--color-ink);
 }
 
 .header__nav-link:hover::after,
@@ -93,7 +96,7 @@
 }
 
 .header__nav-link.is-active {
-  color: var(--color-primary);
+  color: var(--color-ink);
 }
 
 .header__nav-link:focus-visible {
@@ -316,17 +319,18 @@ a.footer__contact-item:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   color: var(--color-warm-gray);
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  transition: background-color 0.2s, color 0.2s;
+  border: 2px solid var(--color-charcoal);
+  border-radius: 0;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .footer__social-link:hover {
-  color: var(--color-white);
-  background: rgba(255, 255, 255, 0.2);
+  color: var(--color-ink);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .footer__nav {
@@ -382,7 +386,7 @@ a.footer__contact-item:hover {
 }
 
 /* ==========================================================================
-   BUTTON — Rectangular, simple, functional
+   BUTTON — Brutalist: Bold, rectangular, high contrast
    ========================================================================== */
 
 .btn {
@@ -391,12 +395,14 @@ a.footer__contact-item:hover {
   justify-content: center;
   gap: var(--space-2);
   font-family: var(--font-sans);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
   white-space: nowrap;
   border: var(--border-width-thick) solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   cursor: pointer;
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
@@ -415,61 +421,64 @@ a.footer__contact-item:hover {
 
 .btn--sm { padding: var(--space-2) var(--space-4); font-size: var(--font-size-sm); }
 .btn--md { padding: var(--space-3) var(--space-6); font-size: var(--font-size-base); }
-.btn--lg { padding: var(--space-4) var(--space-8); font-size: var(--font-size-base); }
+.btn--lg { padding: var(--space-4) var(--space-10); font-size: var(--font-size-lg); }
 
 .btn--primary {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background-color: var(--color-ink);
+  border-color: var(--color-ink);
   color: var(--color-white);
 }
 
 .btn--primary:hover {
-  background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-ink);
 }
 
 .btn--secondary {
   background-color: transparent;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-ink);
+  color: var(--color-ink);
 }
 
 .btn--secondary:hover {
-  background-color: var(--color-primary);
+  background-color: var(--color-ink);
   color: var(--color-white);
 }
 
 .btn--outline {
   background-color: transparent;
-  border-color: var(--color-border-dark);
-  color: var(--color-text-primary);
+  border-color: var(--color-ink);
+  color: var(--color-ink);
 }
 
 .btn--outline:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background-color: var(--color-ink);
+  color: var(--color-white);
 }
 
 .btn--ghost {
   background-color: transparent;
   border-color: transparent;
-  color: var(--color-primary);
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .btn--ghost:hover {
-  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
 }
 
 .btn--cta {
-  background-color: var(--color-white);
-  border-color: var(--color-white);
-  color: var(--color-primary);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-ink);
 }
 
 .btn--cta:hover {
   background-color: var(--color-white);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  border-color: var(--color-ink);
+  color: var(--color-ink);
 }
 
 .btn--back {
@@ -549,17 +558,17 @@ a.footer__contact-item:hover {
 }
 
 /* ==========================================================================
-   CARD — Bordered, no shadows
+   CARD — Brutalist: Thick borders, no shadows, no rounding
    ========================================================================== */
 
 .card {
-  background-color: var(--color-surface);
-  border: var(--border-width) solid var(--color-border-light);
-  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  border: var(--border-width-thick) solid var(--color-ink);
+  border-radius: 0;
 }
 
-.card--elevated { border-color: var(--color-border); }
-.card--outlined { border-width: var(--border-width-thick); border-color: var(--color-border); }
+.card--elevated { border-color: var(--color-ink); }
+.card--outlined { border-width: var(--border-width-thick); border-color: var(--color-ink); }
 .card--padding-sm { padding: var(--space-4); }
 .card--padding-md { padding: var(--space-6); }
 .card--padding-lg { padding: var(--space-8); }
@@ -586,8 +595,19 @@ a.footer__contact-item:hover {
 
 .section--dark h1, .section--dark h2, .section--dark h3, .section--dark h4 { color: var(--color-white); }
 .section--dark p { color: var(--color-stone); }
-.section--dark a { color: var(--color-primary-light); }
+.section--dark a { color: var(--color-primary); }
 .section--dark a:hover { color: var(--color-white); }
+
+/* Brutalist accent section */
+.section--accent {
+  background-color: var(--color-primary);
+  color: var(--color-ink);
+}
+
+.section--accent h1, .section--accent h2, .section--accent h3, .section--accent h4 { color: var(--color-ink); }
+.section--accent p { color: var(--color-charcoal); }
+.section--accent a { color: var(--color-ink); text-decoration: underline; }
+.section--accent a:hover { color: var(--color-white); }
 
 .section--sm { padding-block: var(--space-8); }
 .section--md { padding-block: var(--section-padding-y); }
@@ -598,17 +618,18 @@ a.footer__contact-item:hover {
 }
 
 /* ==========================================================================
-   HERO
+   HERO — Brutalist: Massive text, minimal decoration
    ========================================================================== */
 
 .hero {
   position: relative;
-  padding-block: var(--space-16);
-  border-bottom: var(--border-width) solid var(--color-border-light);
+  padding-block: var(--space-20);
+  border-bottom: var(--border-width-thick) solid var(--color-ink);
+  background-color: var(--color-white);
 }
 
 @media (min-width: 768px) {
-  .hero { padding-block: var(--space-24); }
+  .hero { padding-block: var(--space-32); }
 }
 
 .hero__container {
@@ -621,29 +642,28 @@ a.footer__contact-item:hover {
 
 @media (min-width: 1024px) {
   .hero__container {
-    grid-template-columns: 7fr 5fr;
-    align-items: center;
+    grid-template-columns: 1fr;
     gap: var(--space-16);
   }
 }
 
-.hero__content { max-width: 600px; }
+.hero__content { max-width: 900px; }
 
 .hero__title {
-  font-size: var(--font-size-4xl);
+  font-size: var(--font-size-5xl);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-6);
+  color: var(--color-ink);
+  margin-bottom: var(--space-8);
 }
 
 .hero__subtitle {
-  font-size: var(--font-size-lg);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-8);
-  max-width: 50ch;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-normal);
+  color: var(--color-charcoal);
+  margin-bottom: var(--space-10);
+  max-width: 60ch;
 }
 
 .hero__actions {
@@ -654,27 +674,26 @@ a.footer__contact-item:hover {
 
 .hero__decoration { display: none; }
 
-@media (min-width: 1024px) {
-  .hero__decoration { display: block; position: relative; }
-}
-
 /* ==========================================================================
-   SERVICE CARD — Clean, bordered, no shadow/lift
+   SERVICE CARD — Brutalist: Thick borders, bold hover
    ========================================================================== */
 
 .service-card {
   display: flex;
   flex-direction: column;
   padding: var(--space-6);
-  background-color: var(--color-surface);
-  border: var(--border-width) solid var(--color-border-light);
-  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  border: var(--border-width-thick) solid var(--color-ink);
+  border-radius: 0;
   text-decoration: none;
   color: inherit;
-  transition: border-color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-a.service-card:hover { border-color: var(--color-primary); }
+a.service-card:hover {
+  background-color: var(--color-ink);
+  color: var(--color-white);
+}
 
 a.service-card:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -688,37 +707,47 @@ a.service-card:focus-visible {
   width: 48px;
   height: 48px;
   margin-bottom: var(--space-5);
-  color: var(--color-primary);
+  color: var(--color-ink);
 }
 
-.service-card__icon svg { width: 28px; height: 28px; }
+a.service-card:hover .service-card__icon { color: var(--color-primary); }
+
+.service-card__icon svg { width: 32px; height: 32px; }
 
 .service-card__title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-ink);
   margin-bottom: var(--space-3);
 }
 
+a.service-card:hover .service-card__title { color: var(--color-white); }
+
 .service-card__description {
   font-size: var(--font-size-base);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  color: var(--color-charcoal);
   margin-bottom: 0;
   flex-grow: 1;
 }
+
+a.service-card:hover .service-card__description { color: var(--color-stone); }
 
 .service-card__link {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-5);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-ink);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
 }
 
+a.service-card:hover .service-card__link { color: var(--color-primary); }
+
 .service-card__link svg { transition: transform var(--transition-fast); }
-a.service-card:hover .service-card__link svg { transform: translateX(3px); }
+a.service-card:hover .service-card__link svg { transform: translateX(4px); }
 
 /* ==========================================================================
    TAG — Functional label
@@ -1024,24 +1053,21 @@ a.article-card:focus-visible {
 @media (min-width: 1024px) { .articles-grid { grid-template-columns: repeat(3, 1fr); } }
 
 /* ==========================================================================
-   SCROLL REVEAL
+   SCROLL REVEAL — Brutalist: Minimal, fast
    ========================================================================== */
 
 .reveal {
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.2s linear;
 }
 
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
-    transform: none;
     transition: none;
   }
 }

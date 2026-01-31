@@ -4,6 +4,22 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import Button from '../components/Button.astro';
+import { prisma } from '../lib/prisma';
+
+// Get about page content from database
+const aboutPage = await prisma.pageContent.findUnique({ where: { slug: 'about' } });
+
+type AboutContent = {
+  title?: string;
+  subtitle?: string;
+  content?: string;
+};
+
+const dbContent = (aboutPage?.content as AboutContent) || {};
+
+// Default content if not in database
+const pageTitle = dbContent.title || 'À propos';
+const pageSubtitle = dbContent.subtitle || 'Une conviction simple : le développement durable est un levier de transformation, pas une contrainte.';
 ---
 
 <Layout
@@ -12,9 +28,9 @@ import Button from '../components/Button.astro';
 >
   <div class="page-header">
     <div class="page-header__container">
-      <h1 class="page-header__title">À propos</h1>
+      <h1 class="page-header__title">{pageTitle}</h1>
       <p class="page-header__description">
-        Une conviction simple : le développement durable est un levier de transformation, pas une contrainte.
+        {pageSubtitle}
       </p>
     </div>
   </div>

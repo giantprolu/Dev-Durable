@@ -23,15 +23,15 @@ const homePage = await prisma.pageContent.findUnique({ where: { slug: 'home' } }
 const aboutPage = await prisma.pageContent.findUnique({ where: { slug: 'about' } });
 
 const homeContent = (homePage?.content as Record<string, string>) || {
-  heroTitle: '',
-  heroSubtitle: '',
-  ctaText: '',
-  secondaryCtaText: '',
+  heroTitle: 'Accompagnons ensemble votre transition vers un modèle durable',
+  heroSubtitle: 'AC-ingiénierie vous guide dans votre démarche de développement durable, RSE et transition écologique. Des solutions pragmatiques pour un impact positif et mesurable.',
+  ctaText: 'Découvrir nos services',
+  secondaryCtaText: 'Nous contacter',
 };
 
 const aboutContent = (aboutPage?.content as Record<string, string>) || {
-  title: '',
-  subtitle: '',
+  title: 'À propos',
+  subtitle: 'Une conviction simple : le développement durable est un levier de transformation, pas une contrainte.',
   content: '',
 };
 ---

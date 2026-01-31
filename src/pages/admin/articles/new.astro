@@ -25,6 +25,8 @@ const media = await prisma.media.findMany({
 ---
 
 <Layout title="Nouvel article">
+  <!-- Quill Editor CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
   <div class="admin-page">
     <header class="admin-page__header">
       <div>
@@ -64,8 +66,9 @@ const media = await prisma.media.findMany({
       </div>
 
       <div class="form-group">
-        <label for="content">Contenu (Markdown) *</label>
-        <textarea id="content" name="content" rows="15" required></textarea>
+        <label>Contenu *</label>
+        <div id="editor-container"></div>
+        <input type="hidden" id="content" name="content" />
       </div>
 
       <div class="form-row">
@@ -266,9 +269,54 @@ const media = await prisma.media.findMany({
   .upload-section input[type="file"] {
     display: none;
   }
+
+  /* Quill Editor Styles */
+  #editor-container {
+    height: 400px;
+    background: white;
+  }
+
+  .ql-toolbar.ql-snow {
+    border: var(--border-width) solid var(--color-border-light);
+    border-bottom: none;
+    background: var(--color-bg-secondary);
+  }
+
+  .ql-container.ql-snow {
+    border: var(--border-width) solid var(--color-border-light);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+  }
+
+  .ql-editor {
+    min-height: 350px;
+  }
+
+  .ql-editor h1, .ql-editor h2, .ql-editor h3 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-bold);
+  }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
+  // Initialize Quill editor
+  const quill = new Quill('#editor-container', {
+    theme: 'snow',
+    placeholder: 'Rédigez votre article ici...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['blockquote', 'code-block'],
+        ['link', 'image'],
+        [{ 'align': [] }],
+        ['clean']
+      ]
+    }
+  });
+
   const form = document.getElementById('article-form') as HTMLFormElement;
   const messageEl = document.getElementById('form-message') as HTMLElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
@@ -278,6 +326,7 @@ const media = await prisma.media.findMany({
   const imageInput = document.getElementById('image') as HTMLInputElement;
   const imageUpload = document.getElementById('image-upload') as HTMLInputElement;
   const uploadBtn = document.getElementById('upload-btn') as HTMLButtonElement;
+  const contentInput = document.getElementById('content') as HTMLInputElement;
 
   // Auto-generate slug from title
   titleInput.addEventListener('input', () => {
@@ -358,11 +407,24 @@ const media = await prisma.media.findMany({
       .map((t) => t.trim())
       .filter((t) => t);
 
+    // Get content from Quill editor
+    const editorContent = quill.root.innerHTML;
+
+    // Validate content is not empty
+    if (!editorContent || editorContent === '<p><br></p>') {
+      messageEl.textContent = 'Le contenu de l\'article est requis.';
+      messageEl.className = 'form-message error';
+      messageEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Créer';
+      return;
+    }
+
     const data = {
       title: titleInput.value,
       slug: slugInput.value,
       description: (document.getElementById('description') as HTMLTextAreaElement).value,
-      content: (document.getElementById('content') as HTMLTextAreaElement).value,
+      content: editorContent,
       image: imageInput.value || null,
       imageAlt: (document.getElementById('imageAlt') as HTMLInputElement).value || null,
       tags,

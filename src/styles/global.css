@@ -103,7 +103,7 @@ a:not([class]) {
 }
 
 /* ==========================================================================
-   BASE TYPOGRAPHY
+   BASE TYPOGRAPHY — Brutalist: Bold, massive, impactful
    ========================================================================== */
 
 h1,
@@ -113,41 +113,44 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
+  text-transform: none;
 }
 
 h1 {
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-8);
+}
+
+h2 {
   font-size: var(--font-size-4xl);
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-6);
 }
 
-h2 {
+h3 {
   font-size: var(--font-size-3xl);
   margin-bottom: var(--space-5);
 }
 
-h3 {
+h4 {
   font-size: var(--font-size-2xl);
   margin-bottom: var(--space-4);
 }
 
-h4 {
+h5 {
   font-size: var(--font-size-xl);
   margin-bottom: var(--space-3);
 }
 
-h5 {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-3);
-}
-
 h6 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   margin-bottom: var(--space-2);
 }
 
@@ -174,18 +177,20 @@ small,
 }
 
 /* ==========================================================================
-   LINKS
+   LINKS — Brutalist: Always visible, high contrast
    ========================================================================== */
 
 a {
-  color: var(--color-primary);
+  color: var(--color-ink);
   text-decoration: underline;
-  text-underline-offset: 0.15em;
-  transition: color var(--transition-fast);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+  transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
 }
 
 a:focus-visible {
