@@ -213,9 +213,11 @@ const services = await prisma.service.findMany({
 
         <!-- Tab: Formats -->
         <div class="form-tab-content" data-tab="formats">
-          <p class="form-hint">Ajoutez des formats d'intervention (optionnel)</p>
+          <div class="formats-intro">
+            <p class="form-hint">Ajoutez des formats d'intervention pour présenter vos différentes offres.</p>
+          </div>
           <div id="formats-list" class="formats-editor"></div>
-          <button type="button" class="btn btn--sm btn--secondary" id="add-format">
+          <button type="button" class="btn btn--sm btn--success" id="add-format">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Ajouter un format
           </button>
@@ -225,6 +227,30 @@ const services = await prisma.service.findMany({
       <footer class="modal__footer">
         <button type="button" class="btn btn--secondary" id="cancel-btn">Annuler</button>
         <button type="button" class="btn btn--primary" id="save-service-btn">Enregistrer</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Media Picker Modal -->
+  <div class="modal media-picker-modal" id="media-picker-modal" hidden>
+    <div class="modal__backdrop media-backdrop"></div>
+    <div class="modal__content media-picker-content">
+      <header class="modal__header">
+        <h2>Bibliothèque de médias</h2>
+        <button type="button" class="modal__close" id="close-media-picker">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+      <div class="media-picker-body">
+        <div class="media-picker-loading" id="media-loading">Chargement...</div>
+        <div class="media-picker-grid" id="media-grid"></div>
+        <div class="media-picker-empty" id="media-empty" style="display: none;">
+          Aucun média. <a href="/admin/media" target="_blank">Téléchargez des images</a> dans la bibliothèque.
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--secondary" id="cancel-media-picker">Annuler</button>
+        <button type="button" class="btn btn--primary" id="select-media-btn" disabled>Sélectionner</button>
       </footer>
     </div>
   </div>
@@ -616,6 +642,13 @@ const services = await prisma.service.findMany({
   }
 
   /* Formats Editor */
+  .formats-intro {
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
+    background: var(--color-cream);
+    border-left: 3px solid var(--color-primary);
+  }
+
   .formats-editor {
     display: flex;
     flex-direction: column;
@@ -625,28 +658,29 @@ const services = await prisma.service.findMany({
 
   .format-editor-item {
     padding: var(--space-4);
-    background: var(--color-cream);
-    border: var(--border-width) solid var(--color-border);
+    background: var(--color-white);
+    border: var(--border-width-thick) solid var(--color-ink);
   }
 
   .format-editor-item__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--color-sand);
   }
 
   .format-editor-item__header h4 {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     margin: 0;
-    text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-wide);
+    color: var(--color-primary);
   }
 
   .format-editor-item__fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
 
   @media (max-width: 500px) {
@@ -661,11 +695,111 @@ const services = await prisma.service.findMany({
 
   .format-editor-item input,
   .format-editor-item textarea {
-    padding: var(--space-2);
+    padding: var(--space-3);
     border: var(--border-width) solid var(--color-border);
     font-size: var(--font-size-sm);
     font-family: inherit;
     width: 100%;
+  }
+
+  .format-editor-item input:focus,
+  .format-editor-item textarea:focus {
+    border-color: var(--color-ink);
+    outline: none;
+  }
+
+  /* Image picker field */
+  .image-picker-field {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+  }
+
+  .image-picker-field input {
+    flex: 1;
+  }
+
+  .image-picker-field .btn-pick-media {
+    flex-shrink: 0;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-ink);
+    color: var(--color-white);
+    border: none;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .image-picker-field .btn-pick-media:hover {
+    background: var(--color-primary);
+    color: var(--color-ink);
+  }
+
+  .image-preview {
+    margin-top: var(--space-2);
+    max-width: 200px;
+    border: var(--border-width) solid var(--color-border);
+  }
+
+  .image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Media Picker Modal */
+  .media-picker-modal .modal__content {
+    max-width: 900px;
+    max-height: 80vh;
+  }
+
+  .media-picker-body {
+    padding: var(--space-4);
+    overflow-y: auto;
+    max-height: 50vh;
+    background: var(--color-cream);
+  }
+
+  .media-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .media-picker-item {
+    position: relative;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    background: var(--color-white);
+  }
+
+  .media-picker-item:hover {
+    border-color: var(--color-border);
+  }
+
+  .media-picker-item.selected {
+    border-color: var(--color-primary);
+  }
+
+  .media-picker-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .media-picker-loading,
+  .media-picker-empty {
+    padding: var(--space-8);
+    text-align: center;
+    color: var(--color-text-muted);
+  }
+
+  .media-picker-empty a {
+    color: var(--color-ink);
   }
 
   /* Responsive */
@@ -798,13 +932,13 @@ const services = await prisma.service.findMany({
     item.innerHTML = '\
       <div class="format-editor-item__header">\
         <h4>Format ' + (index + 1) + '</h4>\
-        <button type="button" class="dynamic-list__remove remove-format">\
+        <button type="button" class="dynamic-list__remove remove-format" title="Supprimer ce format">\
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>\
         </button>\
       </div>\
       <div class="format-editor-item__fields">\
         <div class="form-field">\
-          <label><span class="form-field__label">Titre</span></label>\
+          <label><span class="form-field__label">Titre *</span></label>\
           <input type="text" data-field="title" value="' + (format.title || '').replace(/"/g, '&quot;') + '" placeholder="Ex: Atelier de sensibilisation" />\
         </div>\
         <div class="form-field">\
@@ -813,11 +947,17 @@ const services = await prisma.service.findMany({
         </div>\
         <div class="form-field form-field--full">\
           <label><span class="form-field__label">Description</span></label>\
-          <textarea data-field="description" rows="2" placeholder="Description du format...">' + (format.description || '') + '</textarea>\
+          <textarea data-field="description" rows="3" placeholder="Description du format...">' + (format.description || '') + '</textarea>\
         </div>\
         <div class="form-field form-field--full">\
-          <label><span class="form-field__label">Image (URL)</span></label>\
-          <input type="text" data-field="image" value="' + (format.image || '').replace(/"/g, '&quot;') + '" placeholder="https://..." />\
+          <label><span class="form-field__label">Image</span></label>\
+          <div class="image-picker-field">\
+            <input type="text" data-field="image" value="' + (format.image || '').replace(/"/g, '&quot;') + '" placeholder="URL de l\'image..." />\
+            <button type="button" class="btn-pick-media">Choisir</button>\
+          </div>\
+          <div class="image-preview" style="' + (format.image ? '' : 'display:none') + '">\
+            <img src="' + (format.image || '') + '" alt="" />\
+          </div>\
         </div>\
       </div>';
     list.appendChild(item);
@@ -826,7 +966,113 @@ const services = await prisma.service.findMany({
       item.remove();
       updateFormatNumbers();
     });
+
+    // Image preview on input change
+    var imageInput = item.querySelector('[data-field="image"]');
+    var imagePreview = item.querySelector('.image-preview');
+    imageInput.addEventListener('input', function() {
+      if (this.value) {
+        imagePreview.style.display = 'block';
+        imagePreview.querySelector('img').src = this.value;
+      } else {
+        imagePreview.style.display = 'none';
+      }
+    });
+
+    // Media picker button
+    item.querySelector('.btn-pick-media').addEventListener('click', function() {
+      openMediaPicker(imageInput, imagePreview);
+    });
   }
+
+  // Media Picker
+  var mediaPickerModal = document.getElementById('media-picker-modal');
+  var mediaGrid = document.getElementById('media-grid');
+  var mediaLoading = document.getElementById('media-loading');
+  var mediaEmpty = document.getElementById('media-empty');
+  var selectMediaBtn = document.getElementById('select-media-btn');
+  var currentImageInput = null;
+  var currentImagePreview = null;
+  var selectedMediaUrl = null;
+
+  function openMediaPicker(imageInput, imagePreview) {
+    currentImageInput = imageInput;
+    currentImagePreview = imagePreview;
+    selectedMediaUrl = null;
+    selectMediaBtn.disabled = true;
+    mediaPickerModal.hidden = false;
+    loadMedia();
+  }
+
+  function closeMediaPicker() {
+    mediaPickerModal.hidden = true;
+    currentImageInput = null;
+    currentImagePreview = null;
+    selectedMediaUrl = null;
+  }
+
+  document.getElementById('close-media-picker').addEventListener('click', closeMediaPicker);
+  document.getElementById('cancel-media-picker').addEventListener('click', closeMediaPicker);
+  document.querySelector('.media-backdrop').addEventListener('click', closeMediaPicker);
+
+  async function loadMedia() {
+    mediaLoading.style.display = 'block';
+    mediaGrid.innerHTML = '';
+    mediaEmpty.style.display = 'none';
+
+    try {
+      var response = await fetch('/api/media');
+      var media = await response.json();
+
+      mediaLoading.style.display = 'none';
+
+      if (!response.ok || media.length === 0) {
+        mediaEmpty.style.display = 'block';
+        return;
+      }
+
+      // Filter to only show images
+      var images = media.filter(function(m) {
+        return m.type && m.type.startsWith('image/');
+      });
+
+      if (images.length === 0) {
+        mediaEmpty.style.display = 'block';
+        return;
+      }
+
+      images.forEach(function(m) {
+        var item = document.createElement('div');
+        item.className = 'media-picker-item';
+        item.dataset.url = m.url;
+        item.innerHTML = '<img src="' + m.url + '" alt="' + (m.filename || '').replace(/"/g, '&quot;') + '" loading="lazy" />';
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.media-picker-item').forEach(function(i) {
+            i.classList.remove('selected');
+          });
+          item.classList.add('selected');
+          selectedMediaUrl = m.url;
+          selectMediaBtn.disabled = false;
+        });
+        mediaGrid.appendChild(item);
+      });
+    } catch (error) {
+      mediaLoading.style.display = 'none';
+      mediaEmpty.textContent = 'Erreur lors du chargement des médias.';
+      mediaEmpty.style.display = 'block';
+    }
+  }
+
+  selectMediaBtn.addEventListener('click', function() {
+    if (selectedMediaUrl && currentImageInput) {
+      currentImageInput.value = selectedMediaUrl;
+      if (currentImagePreview) {
+        currentImagePreview.style.display = 'block';
+        currentImagePreview.querySelector('img').src = selectedMediaUrl;
+      }
+      closeMediaPicker();
+    }
+  });
 
   function updateFormatNumbers() {
     var items = document.querySelectorAll('.format-editor-item');

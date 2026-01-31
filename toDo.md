@@ -1,9 +1,5 @@
-- [x] revoir le design et la mise en forme de service-card-editor__fields
-- [x] Si je crée un service il faut réellement pouvoir acceder a la page par le lien choisi de ce service une fois créé
-- [x] si je crée un service il faut avoir service-detail__sidebar automatiquement
-- [x] si je modifie un service je dois pouvoir modifier réellement le lien de ce service
-- [x] si je modifie un service je dois pouvoir modifier réellement le contenu de service-detail__sidebar
-- [x] faire du site un SSR et non plus du SSG pour que les modifications soient prises en compte immédiatement
-- [x] revori le design responsive de service-detail__formats reveal is-visible
-- [x] rendre le site entièrement responsive mobile, tablette, desktop
-- [x] pouvoir ajouter des images en dessous de chaque card service-detail__formats
+- [x] la partie Pourquoi "AC-ingiénierie ?" n'est pas responsive mobile et tablette
+- [x] crée des service en lien avec le developpement durable, la RSE et la transition écologique pour les entreprises.
+- [x] revoir l'UX/UI du formulaire de nouveau service/ Format
+- [x] "Section À propos" de la modification de page d'acceuil ne change rien donc supprimer cette partie dans admin
+- [x] dans l'ajout de format sur la création de services, l'image doit pouvoir être choisi dans la bibliothèque de média

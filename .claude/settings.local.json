@@ -6,7 +6,8 @@
       "Bash(npm run build:*)",
       "Bash(node -e:*)",
       "Bash(cd:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npx tsx:*)"
     ]
   }
 }
