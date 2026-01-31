@@ -1,6 +1,9 @@
-- [x] fix bug articles côté client j'en ai 6 mais côté admin j'en ai 3
-- [x] je ne peux pas écrire d'articles ou autres contenus il n'y a pas de WYSIWYG editor
-- [x] fix bug sur la page admin/articles/new et admin/articles/edit "Uncaught TypeError: y is not a constructor"
-- [x] revoir complètement le design du formulaire de Nouveau service
-- [x] il faut que je puisse modifier/créer/supprimer toutes les pages (home, about, services, contact) via l'admin
-- [x] Aucun Markdown que du WYSIWYG editor
+- [x] revoir le design et la mise en forme de service-card-editor__fields
+- [x] Si je crée un service il faut réellement pouvoir acceder a la page par le lien choisi de ce service une fois créé
+- [x] si je crée un service il faut avoir service-detail__sidebar automatiquement
+- [x] si je modifie un service je dois pouvoir modifier réellement le lien de ce service
+- [x] si je modifie un service je dois pouvoir modifier réellement le contenu de service-detail__sidebar
+- [x] faire du site un SSR et non plus du SSG pour que les modifications soient prises en compte immédiatement
+- [x] revori le design responsive de service-detail__formats reveal is-visible
+- [x] rendre le site entièrement responsive mobile, tablette, desktop
+- [x] pouvoir ajouter des images en dessous de chaque card service-detail__formats

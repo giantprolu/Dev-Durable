@@ -18,132 +18,215 @@ if (!user) {
   return Astro.redirect('/admin/login');
 }
 
-// Default services content
-const defaultServices = [
-  {
-    id: 'strategie-rse',
-    title: 'Stratégie RSE',
-    summary: 'Construisez une démarche de responsabilité sociétale structurée, alignée avec vos valeurs et créatrice de valeur.',
-    href: '/services/strategie-rse',
-  },
-  {
-    id: 'transition-ecologique',
-    title: 'Transition écologique',
-    summary: 'Réduisez votre impact environnemental avec un accompagnement sur le bilan carbone, l\'économie circulaire et l\'éco-conception.',
-    href: '/services/transition-ecologique',
-  },
-  {
-    id: 'formation',
-    title: 'Formation & sensibilisation',
-    summary: 'Engagez vos équipes avec des formations adaptées aux enjeux du développement durable.',
-    href: '/services/formation',
-  },
-];
-
-// Get existing services content or use defaults
-const servicesPage = await prisma.pageContent.findUnique({
-  where: { slug: 'services' },
+// Get services from database
+const services = await prisma.service.findMany({
+  orderBy: { order: 'asc' },
 });
-
-const services = servicesPage?.content as typeof defaultServices || defaultServices;
 ---
 
 <Layout title="Gestion des services">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" />
+
   <div class="admin-page">
     <header class="admin-page__header">
       <div>
         <h1>Services</h1>
-        <p>{services.length} service{services.length > 1 ? 's' : ''} configuré{services.length > 1 ? 's' : ''}</p>
+        <p>{services.length} service{services.length > 1 ? 's' : ''}</p>
       </div>
       <div class="admin-page__actions">
         <a href="/admin" class="btn btn--back">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           Retour
         </a>
-        <button type="button" class="btn btn--primary" id="save-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Enregistrer tout
+        <button type="button" class="btn btn--primary" id="new-service-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nouveau service
         </button>
       </div>
     </header>
 
     <div id="form-message" class="form-message" style="display: none;"></div>
 
-    <div class="services-grid" id="services-editor">
+    <!-- Services List -->
+    <div class="services-list" id="services-list">
       {services.map((service, index) => (
-        <article class="service-card-editor" data-index={index}>
-          <header class="service-card-editor__header">
-            <span class="service-card-editor__badge">{String(index + 1).padStart(2, '0')}</span>
-            <div class="service-card-editor__actions">
-              <button type="button" class="btn-icon btn-icon--move" title="Déplacer" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        <article class="service-item-admin" data-id={service.id}>
+          <div class="service-item-admin__header">
+            <span class="service-item-admin__order">{String(index + 1).padStart(2, '0')}</span>
+            <div class="service-item-admin__info">
+              <h3>{service.title}</h3>
+              <span class="service-item-admin__slug">/services/{service.slug}</span>
+            </div>
+            <div class="service-item-admin__status">
+              {service.published ? (
+                <span class="badge badge--success">Publié</span>
+              ) : (
+                <span class="badge badge--warning">Brouillon</span>
+              )}
+            </div>
+            <div class="service-item-admin__actions">
+              <button type="button" class="btn btn--sm btn--edit edit-service-btn" data-id={service.id}>
+                Modifier
               </button>
-              <button type="button" class="btn-icon btn-icon--delete delete-service-btn" title="Supprimer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <button type="button" class="btn btn--sm btn--danger delete-service-btn" data-id={service.id} data-title={service.title}>
+                Supprimer
               </button>
-            </div>
-          </header>
-
-          <div class="service-card-editor__preview">
-            <h3 class="preview-title">{service.title}</h3>
-          </div>
-
-          <div class="service-card-editor__fields">
-            <div class="field">
-              <label for={`title-${index}`}>
-                <span class="field__label">Titre</span>
-                <span class="field__required">*</span>
-              </label>
-              <input
-                type="text"
-                id={`title-${index}`}
-                value={service.title}
-                data-field="title"
-                placeholder="Ex: Stratégie RSE"
-                required
-              />
-            </div>
-
-            <div class="field">
-              <label for={`summary-${index}`}>
-                <span class="field__label">Description</span>
-                <span class="field__required">*</span>
-              </label>
-              <textarea
-                id={`summary-${index}`}
-                rows="3"
-                data-field="summary"
-                placeholder="Décrivez brièvement ce service..."
-                required
-              >{service.summary}</textarea>
-              <span class="field__hint">Affiché sur la page d'accueil et la liste des services</span>
-            </div>
-
-            <div class="field">
-              <label for={`href-${index}`}>
-                <span class="field__label">Lien</span>
-              </label>
-              <div class="field__input-group">
-                <span class="field__prefix">/services/</span>
-                <input
-                  type="text"
-                  id={`href-${index}`}
-                  value={service.href.replace('/services/', '')}
-                  data-field="href"
-                  placeholder="mon-service"
-                />
-              </div>
-              <span class="field__hint">Pages : strategie-rse, transition-ecologique, formation</span>
             </div>
           </div>
         </article>
       ))}
     </div>
 
-    <button type="button" class="add-service-btn" id="add-service-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      <span>Ajouter un service</span>
-    </button>
+    {services.length === 0 && (
+      <div class="empty-state">
+        <p>Aucun service. Créez votre premier service.</p>
+      </div>
+    )}
+  </div>
+
+  <!-- Modal for editing/creating service -->
+  <div class="modal" id="service-modal" hidden>
+    <div class="modal__backdrop"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="modal-title">Nouveau service</h2>
+        <button type="button" class="modal__close" id="close-modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+
+      <form id="service-form" class="modal__body">
+        <input type="hidden" id="service-id" name="id" value="" />
+
+        <!-- Tabs -->
+        <div class="form-tabs">
+          <button type="button" class="form-tab active" data-tab="general">Général</button>
+          <button type="button" class="form-tab" data-tab="content">Contenu</button>
+          <button type="button" class="form-tab" data-tab="sidebar">Sidebar</button>
+          <button type="button" class="form-tab" data-tab="formats">Formats</button>
+        </div>
+
+        <!-- Tab: General -->
+        <div class="form-tab-content active" data-tab="general">
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="service-title">
+                <span class="form-field__label">Titre du service</span>
+                <span class="form-field__required">*</span>
+              </label>
+              <input type="text" id="service-title" name="title" required placeholder="Ex: Stratégie RSE" />
+            </div>
+
+            <div class="form-field">
+              <label for="service-slug">
+                <span class="form-field__label">URL (slug)</span>
+                <span class="form-field__required">*</span>
+              </label>
+              <div class="form-field__input-group">
+                <span class="form-field__prefix">/services/</span>
+                <input type="text" id="service-slug" name="slug" required placeholder="strategie-rse" />
+              </div>
+              <span class="form-field__hint">L'URL sera: /services/votre-slug</span>
+            </div>
+
+            <div class="form-field form-field--full">
+              <label for="service-summary">
+                <span class="form-field__label">Résumé</span>
+                <span class="form-field__required">*</span>
+              </label>
+              <textarea id="service-summary" name="summary" rows="3" required placeholder="Description courte affichée sur la page d'accueil..."></textarea>
+            </div>
+
+            <div class="form-field">
+              <label for="service-page-title">
+                <span class="form-field__label">Titre de la page</span>
+              </label>
+              <input type="text" id="service-page-title" name="pageTitle" placeholder="Laissez vide pour utiliser le titre" />
+            </div>
+
+            <div class="form-field">
+              <label for="service-published">
+                <span class="form-field__label">Statut</span>
+              </label>
+              <select id="service-published" name="published">
+                <option value="true">Publié</option>
+                <option value="false">Brouillon</option>
+              </select>
+            </div>
+
+            <div class="form-field form-field--full">
+              <label for="service-page-description">
+                <span class="form-field__label">Description de la page</span>
+              </label>
+              <textarea id="service-page-description" name="pageDescription" rows="2" placeholder="Description SEO (laissez vide pour utiliser le résumé)"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Content -->
+        <div class="form-tab-content" data-tab="content">
+          <div class="form-field">
+            <label>
+              <span class="form-field__label">Contenu principal</span>
+            </label>
+            <div id="description-editor" class="quill-editor"></div>
+            <input type="hidden" id="service-description" name="description" />
+          </div>
+
+          <div class="form-grid" style="margin-top: var(--space-6);">
+            <div class="form-field">
+              <label for="service-cta-title">
+                <span class="form-field__label">Titre CTA (bas de page)</span>
+              </label>
+              <input type="text" id="service-cta-title" name="ctaTitle" placeholder="Intéressé par ce service ?" />
+            </div>
+
+            <div class="form-field">
+              <label for="service-cta-text">
+                <span class="form-field__label">Texte CTA</span>
+              </label>
+              <input type="text" id="service-cta-text" name="ctaText" placeholder="Discutons de votre projet." />
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Sidebar -->
+        <div class="form-tab-content" data-tab="sidebar">
+          <div class="form-field">
+            <label for="service-sidebar-title">
+              <span class="form-field__label">Titre de la sidebar</span>
+            </label>
+            <input type="text" id="service-sidebar-title" name="sidebarTitle" placeholder="Livrables" />
+          </div>
+
+          <div class="form-field">
+            <label>
+              <span class="form-field__label">Éléments de la sidebar</span>
+            </label>
+            <div id="sidebar-items-list" class="dynamic-list"></div>
+            <button type="button" class="btn btn--sm btn--secondary" id="add-sidebar-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ajouter un élément
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab: Formats -->
+        <div class="form-tab-content" data-tab="formats">
+          <p class="form-hint">Ajoutez des formats d'intervention (optionnel)</p>
+          <div id="formats-list" class="formats-editor"></div>
+          <button type="button" class="btn btn--sm btn--secondary" id="add-format">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ajouter un format
+          </button>
+        </div>
+      </form>
+
+      <footer class="modal__footer">
+        <button type="button" class="btn btn--secondary" id="cancel-btn">Annuler</button>
+        <button type="button" class="btn btn--primary" id="save-service-btn">Enregistrer</button>
+      </footer>
+    </div>
   </div>
 </Layout>
 
@@ -162,6 +245,8 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     margin-bottom: var(--space-8);
     padding-bottom: var(--space-6);
     border-bottom: var(--border-width-thick) solid var(--color-primary);
+    flex-wrap: wrap;
+    gap: var(--space-4);
   }
 
   .admin-page__header h1 {
@@ -178,12 +263,12 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     display: flex;
     gap: var(--space-2);
     align-items: center;
+    flex-wrap: wrap;
   }
 
   .form-message {
     padding: var(--space-4);
     margin-bottom: var(--space-6);
-    font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     border: var(--border-width-thick) solid;
   }
@@ -200,163 +285,268 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     border-color: #721c24;
   }
 
-  /* Services Grid */
-  .services-grid {
-    display: grid;
-    gap: var(--space-6);
-    margin-bottom: var(--space-6);
+  /* Services List */
+  .services-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
 
-  @media (min-width: 768px) {
-    .services-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1200px) {
-    .services-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  /* Service Card Editor */
-  .service-card-editor {
+  .service-item-admin {
     background: var(--color-white);
     border: var(--border-width-thick) solid var(--color-ink);
+  }
+
+  .service-item-admin__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .service-item-admin__order {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    min-width: 40px;
+  }
+
+  .service-item-admin__info {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .service-item-admin__info h3 {
+    font-size: var(--font-size-lg);
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  .service-item-admin__slug {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    font-family: monospace;
+  }
+
+  .service-item-admin__status {
+    min-width: 80px;
+  }
+
+  .service-item-admin__actions {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+  }
+
+  .badge--success {
+    background: var(--color-primary);
+    color: var(--color-ink);
+  }
+
+  .badge--warning {
+    background: var(--color-sand);
+    color: var(--color-ink);
+    border: 1px solid var(--color-ink);
+  }
+
+  .empty-state {
+    padding: var(--space-12);
+    text-align: center;
+    background: var(--color-cream);
+    border: 3px dashed var(--color-border);
+  }
+
+  /* Modal */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+  }
+
+  .modal[hidden] {
+    display: none;
+  }
+
+  .modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .modal__content {
+    position: relative;
+    background: var(--color-white);
+    border: var(--border-width-thick) solid var(--color-ink);
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
   }
 
-  .service-card-editor__header {
+  .modal__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-4) var(--space-6);
     background: var(--color-ink);
     color: var(--color-white);
   }
 
-  .service-card-editor__badge {
+  .modal__header h2 {
     font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-primary);
-  }
-
-  .service-card-editor__actions {
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  .btn-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: transparent;
-    border: 2px solid var(--color-charcoal);
-    color: var(--color-warm-gray);
-    cursor: pointer;
-    transition: all 0.1s;
-  }
-
-  .btn-icon:hover:not(:disabled) {
-    background: var(--color-white);
-    border-color: var(--color-white);
-    color: var(--color-ink);
-  }
-
-  .btn-icon:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .btn-icon--delete:hover:not(:disabled) {
-    background: var(--color-error);
-    border-color: var(--color-error);
+    margin: 0;
     color: var(--color-white);
   }
 
-  .service-card-editor__preview {
-    padding: var(--space-4);
-    border-bottom: 2px solid var(--color-sand);
-    background: var(--color-cream);
+  .modal__close {
+    background: transparent;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+    padding: var(--space-1);
   }
 
-  .preview-title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    margin: 0;
-    color: var(--color-ink);
+  .modal__close:hover {
+    color: var(--color-primary);
   }
 
-  .service-card-editor__fields {
-    padding: var(--space-5);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
+  .modal__body {
+    padding: var(--space-6);
+    overflow-y: auto;
     flex: 1;
   }
 
-  /* Fields */
-  .field {
+  .modal__footer {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    border-top: var(--border-width) solid var(--color-border);
+    background: var(--color-cream);
   }
 
-  .field label {
+  /* Form Tabs */
+  .form-tabs {
+    display: flex;
+    gap: var(--space-1);
+    margin-bottom: var(--space-6);
+    border-bottom: var(--border-width-thick) solid var(--color-ink);
+    flex-wrap: wrap;
+  }
+
+  .form-tab {
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: none;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    font-size: var(--font-size-sm);
+  }
+
+  .form-tab:hover {
+    color: var(--color-ink);
+  }
+
+  .form-tab.active {
+    color: var(--color-ink);
+    background: var(--color-primary);
+  }
+
+  .form-tab-content {
+    display: none;
+  }
+
+  .form-tab-content.active {
+    display: block;
+  }
+
+  /* Form Fields */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .form-field--full {
+    grid-column: 1 / -1;
+  }
+
+  .form-field label {
     display: flex;
     align-items: center;
     gap: var(--space-1);
   }
 
-  .field__label {
+  .form-field__label {
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-sm);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
-    color: var(--color-ink);
   }
 
-  .field__required {
+  .form-field__required {
     color: var(--color-error);
     font-weight: var(--font-weight-bold);
   }
 
-  .field input,
-  .field textarea {
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
     width: 100%;
     padding: var(--space-3);
     border: var(--border-width) solid var(--color-border);
     font-size: var(--font-size-base);
     font-family: inherit;
     background: var(--color-white);
-    transition: border-color 0.1s;
   }
 
-  .field input:focus,
-  .field textarea:focus {
+  .form-field input:focus,
+  .form-field textarea:focus,
+  .form-field select:focus {
     outline: none;
     border-color: var(--color-ink);
   }
 
-  .field textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .field__hint {
+  .form-field__hint {
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
   }
 
-  .field__input-group {
+  .form-field__input-group {
     display: flex;
     align-items: stretch;
   }
 
-  .field__prefix {
+  .form-field__prefix {
     display: flex;
     align-items: center;
     padding: 0 var(--space-3);
@@ -368,199 +558,472 @@ const services = servicesPage?.content as typeof defaultServices || defaultServi
     font-family: monospace;
   }
 
-  .field__input-group input {
+  .form-field__input-group input {
     flex: 1;
   }
 
-  /* Add Service Button */
-  .add-service-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-3);
-    width: 100%;
-    padding: var(--space-6);
+  .form-hint {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-4);
+  }
+
+  /* Quill Editor */
+  .quill-editor {
+    background: var(--color-white);
+    border: var(--border-width) solid var(--color-border);
+    min-height: 300px;
+  }
+
+  :global(.ql-toolbar) {
+    border: none !important;
+    border-bottom: var(--border-width) solid var(--color-border) !important;
     background: var(--color-cream);
-    border: 3px dashed var(--color-border);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text-secondary);
+  }
+
+  :global(.ql-container) {
+    border: none !important;
+    font-size: var(--font-size-base);
+    font-family: inherit;
+  }
+
+  /* Dynamic List (sidebar items) */
+  .dynamic-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .dynamic-list__item {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .dynamic-list__item input {
+    flex: 1;
+    padding: var(--space-2);
+    border: var(--border-width) solid var(--color-border);
+    font-size: var(--font-size-sm);
+  }
+
+  .dynamic-list__remove {
+    background: transparent;
+    border: none;
+    color: var(--color-error);
     cursor: pointer;
-    transition: all 0.1s;
+    padding: var(--space-1);
   }
 
-  .add-service-btn:hover {
-    background: var(--color-primary);
-    border-color: var(--color-ink);
-    border-style: solid;
-    color: var(--color-ink);
+  /* Formats Editor */
+  .formats-editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
-  .add-service-btn svg {
-    transition: transform 0.1s;
+  .format-editor-item {
+    padding: var(--space-4);
+    background: var(--color-cream);
+    border: var(--border-width) solid var(--color-border);
   }
 
-  .add-service-btn:hover svg {
-    transform: scale(1.2);
+  .format-editor-item__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3);
+  }
+
+  .format-editor-item__header h4 {
+    font-size: var(--font-size-sm);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+  }
+
+  .format-editor-item__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 500px) {
+    .format-editor-item__fields {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .format-editor-item__fields .form-field--full {
+    grid-column: 1 / -1;
+  }
+
+  .format-editor-item input,
+  .format-editor-item textarea {
+    padding: var(--space-2);
+    border: var(--border-width) solid var(--color-border);
+    font-size: var(--font-size-sm);
+    font-family: inherit;
+    width: 100%;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .admin-page__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .service-item-admin__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .modal__content {
+      max-height: 100vh;
+      height: 100vh;
+    }
   }
 </style>
 
+<script is:inline src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script is:inline>
-  var saveBtn = document.getElementById('save-btn');
-  var addServiceBtn = document.getElementById('add-service-btn');
+  var modal = document.getElementById('service-modal');
+  var modalTitle = document.getElementById('modal-title');
+  var form = document.getElementById('service-form');
+  var serviceIdInput = document.getElementById('service-id');
   var messageEl = document.getElementById('form-message');
-  var servicesEditor = document.getElementById('services-editor');
+  var newServiceBtn = document.getElementById('new-service-btn');
+  var closeModalBtn = document.getElementById('close-modal');
+  var cancelBtn = document.getElementById('cancel-btn');
+  var saveBtn = document.getElementById('save-service-btn');
+  var servicesList = document.getElementById('services-list');
 
-  var serviceCount = document.querySelectorAll('.service-card-editor').length;
+  // Initialize Quill editor
+  var quill = new Quill('#description-editor', {
+    theme: 'snow',
+    placeholder: 'Rédigez le contenu principal de la page service...',
+    modules: {
+      toolbar: [
+        [{ 'header': [2, 3, 4, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link'],
+        ['clean']
+      ]
+    }
+  });
 
-  // Function to update service numbers
-  function updateServiceNumbers() {
-    var editors = document.querySelectorAll('.service-card-editor');
-    editors.forEach(function(editor, index) {
-      var badgeEl = editor.querySelector('.service-card-editor__badge');
-      if (badgeEl) {
-        badgeEl.textContent = String(index + 1).padStart(2, '0');
-      }
+  // Tab navigation
+  var tabs = document.querySelectorAll('.form-tab');
+  var tabContents = document.querySelectorAll('.form-tab-content');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var targetTab = this.dataset.tab;
+
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tabContents.forEach(function(c) { c.classList.remove('active'); });
+
+      this.classList.add('active');
+      document.querySelector('.form-tab-content[data-tab="' + targetTab + '"]').classList.add('active');
+    });
+  });
+
+  // Open modal for new service
+  newServiceBtn.addEventListener('click', function() {
+    resetForm();
+    modalTitle.textContent = 'Nouveau service';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  });
+
+  // Close modal
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  closeModalBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+  document.querySelector('.modal__backdrop').addEventListener('click', closeModal);
+
+  // Reset form
+  function resetForm() {
+    form.reset();
+    serviceIdInput.value = '';
+    quill.root.innerHTML = '';
+    document.getElementById('sidebar-items-list').innerHTML = '';
+    document.getElementById('formats-list').innerHTML = '';
+
+    // Reset to first tab
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    tabContents.forEach(function(c) { c.classList.remove('active'); });
+    tabs[0].classList.add('active');
+    tabContents[0].classList.add('active');
+  }
+
+  // Add sidebar item
+  document.getElementById('add-sidebar-item').addEventListener('click', function() {
+    addSidebarItem('');
+  });
+
+  function addSidebarItem(value) {
+    var list = document.getElementById('sidebar-items-list');
+    var item = document.createElement('div');
+    item.className = 'dynamic-list__item';
+    item.innerHTML = '\
+      <input type="text" value="' + (value || '').replace(/"/g, '&quot;') + '" placeholder="Ex: Diagnostic RSE initial" />\
+      <button type="button" class="dynamic-list__remove">\
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>\
+      </button>';
+    list.appendChild(item);
+
+    item.querySelector('.dynamic-list__remove').addEventListener('click', function() {
+      item.remove();
     });
   }
 
-  // Function to create a new service editor
-  function createServiceEditor(index) {
-    var template = '\
-      <article class="service-card-editor" data-index="' + index + '">\
-        <header class="service-card-editor__header">\
-          <span class="service-card-editor__badge">' + String(index + 1).padStart(2, '0') + '</span>\
-          <div class="service-card-editor__actions">\
-            <button type="button" class="btn-icon btn-icon--move" title="Déplacer" disabled>\
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>\
-            </button>\
-            <button type="button" class="btn-icon btn-icon--delete delete-service-btn" title="Supprimer">\
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>\
-            </button>\
-          </div>\
-        </header>\
-        <div class="service-card-editor__preview">\
-          <h3 class="preview-title">Nouveau service</h3>\
-        </div>\
-        <div class="service-card-editor__fields">\
-          <div class="field">\
-            <label for="title-' + index + '">\
-              <span class="field__label">Titre</span>\
-              <span class="field__required">*</span>\
-            </label>\
-            <input type="text" id="title-' + index + '" value="" data-field="title" placeholder="Ex: Stratégie RSE" required />\
-          </div>\
-          <div class="field">\
-            <label for="summary-' + index + '">\
-              <span class="field__label">Description</span>\
-              <span class="field__required">*</span>\
-            </label>\
-            <textarea id="summary-' + index + '" rows="3" data-field="summary" placeholder="Décrivez brièvement ce service..." required></textarea>\
-            <span class="field__hint">Affiché sur la page d\'accueil et la liste des services</span>\
-          </div>\
-          <div class="field">\
-            <label for="href-' + index + '">\
-              <span class="field__label">Lien</span>\
-            </label>\
-            <div class="field__input-group">\
-              <span class="field__prefix">/services/</span>\
-              <input type="text" id="href-' + index + '" value="" data-field="href" placeholder="mon-service" />\
-            </div>\
-            <span class="field__hint">Pages : strategie-rse, transition-ecologique, formation</span>\
-          </div>\
-        </div>\
-      </article>';
-
-    var div = document.createElement('div');
-    div.innerHTML = template.trim();
-    return div.firstChild;
-  }
-
-  // Add new service
-  addServiceBtn.addEventListener('click', function() {
-    var newEditor = createServiceEditor(serviceCount);
-    servicesEditor.appendChild(newEditor);
-    serviceCount++;
-
-    newEditor.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    var titleInput = newEditor.querySelector('[data-field="title"]');
-    setTimeout(function() { titleInput && titleInput.focus(); }, 300);
+  // Add format
+  document.getElementById('add-format').addEventListener('click', function() {
+    addFormat({ title: '', duration: '', description: '', image: '' });
   });
 
-  // Delete service (using event delegation)
-  servicesEditor.addEventListener('click', function(e) {
+  function addFormat(format) {
+    var list = document.getElementById('formats-list');
+    var index = list.children.length;
+    var item = document.createElement('div');
+    item.className = 'format-editor-item';
+    item.innerHTML = '\
+      <div class="format-editor-item__header">\
+        <h4>Format ' + (index + 1) + '</h4>\
+        <button type="button" class="dynamic-list__remove remove-format">\
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>\
+        </button>\
+      </div>\
+      <div class="format-editor-item__fields">\
+        <div class="form-field">\
+          <label><span class="form-field__label">Titre</span></label>\
+          <input type="text" data-field="title" value="' + (format.title || '').replace(/"/g, '&quot;') + '" placeholder="Ex: Atelier de sensibilisation" />\
+        </div>\
+        <div class="form-field">\
+          <label><span class="form-field__label">Durée</span></label>\
+          <input type="text" data-field="duration" value="' + (format.duration || '').replace(/"/g, '&quot;') + '" placeholder="Ex: 2 à 4 heures" />\
+        </div>\
+        <div class="form-field form-field--full">\
+          <label><span class="form-field__label">Description</span></label>\
+          <textarea data-field="description" rows="2" placeholder="Description du format...">' + (format.description || '') + '</textarea>\
+        </div>\
+        <div class="form-field form-field--full">\
+          <label><span class="form-field__label">Image (URL)</span></label>\
+          <input type="text" data-field="image" value="' + (format.image || '').replace(/"/g, '&quot;') + '" placeholder="https://..." />\
+        </div>\
+      </div>';
+    list.appendChild(item);
+
+    item.querySelector('.remove-format').addEventListener('click', function() {
+      item.remove();
+      updateFormatNumbers();
+    });
+  }
+
+  function updateFormatNumbers() {
+    var items = document.querySelectorAll('.format-editor-item');
+    items.forEach(function(item, index) {
+      item.querySelector('h4').textContent = 'Format ' + (index + 1);
+    });
+  }
+
+  // Edit service
+  servicesList.addEventListener('click', function(e) {
+    var editBtn = e.target.closest('.edit-service-btn');
+    if (editBtn) {
+      var serviceId = editBtn.dataset.id;
+      loadService(serviceId);
+    }
+
     var deleteBtn = e.target.closest('.delete-service-btn');
-    if (!deleteBtn) return;
+    if (deleteBtn) {
+      var id = deleteBtn.dataset.id;
+      var title = deleteBtn.dataset.title;
+      if (confirm('Supprimer "' + title + '" ?')) {
+        deleteService(id);
+      }
+    }
+  });
 
-    var editor = deleteBtn.closest('.service-card-editor');
-    if (!editor) return;
+  async function loadService(id) {
+    try {
+      var response = await fetch('/api/services/' + id);
+      var service = await response.json();
 
-    var editors = document.querySelectorAll('.service-card-editor');
-    if (editors.length <= 1) {
-      alert('Vous devez garder au moins un service.');
+      if (!response.ok) {
+        throw new Error(service.error || 'Erreur lors du chargement');
+      }
+
+      // Fill form
+      serviceIdInput.value = service.id;
+      document.getElementById('service-title').value = service.title || '';
+      document.getElementById('service-slug').value = service.slug || '';
+      document.getElementById('service-summary').value = service.summary || '';
+      document.getElementById('service-page-title').value = service.pageTitle || '';
+      document.getElementById('service-page-description').value = service.pageDescription || '';
+      document.getElementById('service-published').value = service.published ? 'true' : 'false';
+      document.getElementById('service-sidebar-title').value = service.sidebarTitle || '';
+      document.getElementById('service-cta-title').value = service.ctaTitle || '';
+      document.getElementById('service-cta-text').value = service.ctaText || '';
+
+      // Set description in Quill
+      quill.root.innerHTML = service.description || '';
+
+      // Load sidebar items
+      var sidebarList = document.getElementById('sidebar-items-list');
+      sidebarList.innerHTML = '';
+      if (service.sidebarItems && service.sidebarItems.length > 0) {
+        service.sidebarItems.forEach(function(item) {
+          addSidebarItem(item);
+        });
+      }
+
+      // Load formats
+      var formatsList = document.getElementById('formats-list');
+      formatsList.innerHTML = '';
+      if (service.formats && service.formats.length > 0) {
+        service.formats.forEach(function(format) {
+          addFormat(format);
+        });
+      }
+
+      modalTitle.textContent = 'Modifier le service';
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+    } catch (error) {
+      showMessage(error.message, 'error');
+    }
+  }
+
+  // Save service
+  saveBtn.addEventListener('click', async function() {
+    var id = serviceIdInput.value;
+    var title = document.getElementById('service-title').value.trim();
+    var slug = document.getElementById('service-slug').value.trim();
+    var summary = document.getElementById('service-summary').value.trim();
+
+    if (!title || !slug || !summary) {
+      showMessage('Veuillez remplir tous les champs obligatoires', 'error');
       return;
     }
 
-    var titleInput = editor.querySelector('[data-field="title"]');
-    var title = titleInput ? titleInput.value : 'ce service';
-    if (!confirm('Supprimer "' + title + '" ?')) return;
-
-    editor.remove();
-    updateServiceNumbers();
-  });
-
-  // Update title in preview when editing
-  servicesEditor.addEventListener('input', function(e) {
-    if (e.target.dataset.field === 'title') {
-      var editor = e.target.closest('.service-card-editor');
-      var previewTitle = editor && editor.querySelector('.preview-title');
-      if (previewTitle) {
-        previewTitle.textContent = e.target.value || 'Nouveau service';
+    // Get sidebar items
+    var sidebarItems = [];
+    document.querySelectorAll('#sidebar-items-list input').forEach(function(input) {
+      if (input.value.trim()) {
+        sidebarItems.push(input.value.trim());
       }
-    }
-  });
+    });
 
-  // Save services
-  saveBtn.addEventListener('click', async function() {
-    messageEl.style.display = 'none';
+    // Get formats
+    var formats = [];
+    document.querySelectorAll('.format-editor-item').forEach(function(item) {
+      var format = {
+        title: item.querySelector('[data-field="title"]').value.trim(),
+        duration: item.querySelector('[data-field="duration"]').value.trim(),
+        description: item.querySelector('[data-field="description"]').value.trim(),
+        image: item.querySelector('[data-field="image"]').value.trim()
+      };
+      if (format.title) {
+        formats.push(format);
+      }
+    });
+
+    var data = {
+      title: title,
+      slug: slug,
+      summary: summary,
+      description: quill.root.innerHTML,
+      pageTitle: document.getElementById('service-page-title').value.trim() || null,
+      pageDescription: document.getElementById('service-page-description').value.trim() || null,
+      published: document.getElementById('service-published').value === 'true',
+      sidebarTitle: document.getElementById('service-sidebar-title').value.trim() || null,
+      sidebarItems: sidebarItems,
+      ctaTitle: document.getElementById('service-cta-title').value.trim() || null,
+      ctaText: document.getElementById('service-cta-text').value.trim() || null,
+      formats: formats
+    };
+
     saveBtn.disabled = true;
     saveBtn.textContent = 'Enregistrement...';
 
-    var serviceEditors = document.querySelectorAll('.service-card-editor');
-    var services = [];
-
-    serviceEditors.forEach(function(editor, index) {
-      var title = editor.querySelector('[data-field="title"]').value;
-      var summary = editor.querySelector('[data-field="summary"]').value;
-      var hrefInput = editor.querySelector('[data-field="href"]').value;
-      var href = '/services/' + hrefInput;
-      var id = hrefInput || ('service-' + index);
-
-      services.push({ id: id, title: title, summary: summary, href: href });
-    });
-
     try {
-      var response = await fetch('/api/pages/services', {
-        method: 'PUT',
+      var url = id ? '/api/services/' + id : '/api/services';
+      var method = id ? 'PUT' : 'POST';
+
+      var response = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: services }),
+        body: JSON.stringify(data)
       });
 
       var result = await response.json();
 
-      if (response.ok) {
-        messageEl.textContent = 'Services enregistrés avec succès !';
-        messageEl.className = 'form-message success';
-      } else {
+      if (!response.ok) {
         throw new Error(result.error || 'Erreur lors de la sauvegarde');
       }
+
+      showMessage('Service enregistré avec succès !', 'success');
+      closeModal();
+      window.location.reload();
+
     } catch (error) {
-      messageEl.textContent = error.message || 'Erreur lors de la sauvegarde';
-      messageEl.className = 'form-message error';
+      showMessage(error.message, 'error');
     } finally {
-      messageEl.style.display = 'block';
       saveBtn.disabled = false;
-      saveBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Enregistrer tout';
+      saveBtn.textContent = 'Enregistrer';
     }
+  });
+
+  // Delete service
+  async function deleteService(id) {
+    try {
+      var response = await fetch('/api/services/' + id, { method: 'DELETE' });
+      var result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erreur lors de la suppression');
+      }
+
+      showMessage('Service supprimé', 'success');
+      window.location.reload();
+
+    } catch (error) {
+      showMessage(error.message, 'error');
+    }
+  }
+
+  function showMessage(text, type) {
+    messageEl.textContent = text;
+    messageEl.className = 'form-message ' + type;
+    messageEl.style.display = 'block';
+    messageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Auto-generate slug from title
+  document.getElementById('service-title').addEventListener('input', function() {
+    if (!serviceIdInput.value) {
+      var slugInput = document.getElementById('service-slug');
+      if (!slugInput.dataset.manuallyEdited) {
+        slugInput.value = this.value
+          .toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+    }
+  });
+
+  document.getElementById('service-slug').addEventListener('input', function() {
+    this.dataset.manuallyEdited = 'true';
   });
 </script>

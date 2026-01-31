@@ -1,0 +1,118 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+import { prisma } from '../../lib/prisma';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/services');
+}
+
+const service = await prisma.service.findUnique({
+  where: { slug },
+});
+
+if (!service || !service.published) {
+  return Astro.redirect('/services');
+}
+
+type FormatItem = {
+  title: string;
+  duration: string;
+  description: string;
+  image?: string;
+};
+
+const formats = (service.formats as FormatItem[]) || [];
+---
+
+<Layout
+  title={service.pageTitle || service.title}
+  description={service.pageDescription || service.summary}
+>
+  <div class="page-header">
+    <div class="page-header__container">
+      <h1 class="page-header__title">{service.pageTitle || service.title}</h1>
+      <p class="page-header__description">
+        {service.pageDescription || service.summary}
+      </p>
+    </div>
+  </div>
+
+  <Section variant="default">
+    <div class="service-detail">
+      <div class="service-detail__main">
+        <div class="prose" set:html={service.description}></div>
+
+        {formats.length > 0 && (
+          <div class="service-detail__formats reveal is-visible">
+            <h3>Nos formats d'intervention</h3>
+            <div class="formats-grid">
+              {formats.map((format: FormatItem) => (
+                <article class="format-item">
+                  <h4 class="format-item__title">{format.title}</h4>
+                  <span class="format-item__duration">{format.duration}</span>
+                  <p class="format-item__description">{format.description}</p>
+                  {format.image && (
+                    <div class="format-item__image">
+                      <img src={format.image} alt={format.title} loading="lazy" />
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <aside class="service-detail__sidebar">
+        {service.sidebarItems && service.sidebarItems.length > 0 && (
+          <div class="service-detail__sidebar-card">
+            <h3>{service.sidebarTitle || 'Livrables'}</h3>
+            <ul class="deliverables-list">
+              {service.sidebarItems.map((item: string) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <Button href="/contact" size="lg" fullWidth>
+          Demander un devis
+        </Button>
+      </aside>
+    </div>
+  </Section>
+
+  <Section variant="dark" size="lg">
+    <div class="cta-content">
+      <h2>{service.ctaTitle || `Intéressé par ${service.title} ?`}</h2>
+      <p class="lead">
+        {service.ctaText || 'Discutons de votre projet.'}
+      </p>
+      <div class="cta-actions">
+        <Button href="/contact" size="lg">
+          Prendre rendez-vous
+        </Button>
+      </div>
+    </div>
+  </Section>
+</Layout>
+
+<style>
+  .format-item__image {
+    margin-top: var(--space-4);
+    border: var(--border-width) solid var(--color-border-light);
+    overflow: hidden;
+  }
+
+  .format-item__image img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+</style>

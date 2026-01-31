@@ -5,7 +5,8 @@
       "Bash(findstr:*)",
       "Bash(npm run build:*)",
       "Bash(node -e:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(npx prisma:*)"
     ]
   }
 }

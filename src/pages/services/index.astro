@@ -6,34 +6,20 @@ import Section from '../../components/Section.astro';
 import Button from '../../components/Button.astro';
 import { prisma } from '../../lib/prisma';
 
-// Default services
-const defaultServices = [
-  {
-    id: 'strategie-rse',
-    title: 'Stratégie RSE',
-    summary: 'Construisez une démarche de responsabilité sociétale structurée, alignée avec vos valeurs et créatrice de valeur.',
-    href: '/services/strategie-rse',
-  },
-  {
-    id: 'transition-ecologique',
-    title: 'Transition écologique',
-    summary: 'Réduisez votre impact environnemental avec un accompagnement sur le bilan carbone, l\'économie circulaire et l\'éco-conception.',
-    href: '/services/transition-ecologique',
-  },
-  {
-    id: 'formation',
-    title: 'Formation & sensibilisation',
-    summary: 'Engagez vos équipes avec des formations adaptées aux enjeux du développement durable.',
-    href: '/services/formation',
-  },
-];
-
-// Get services from database or use defaults
-const servicesPage = await prisma.pageContent.findUnique({
-  where: { slug: 'services' },
+// Get services from database
+const dbServices = await prisma.service.findMany({
+  where: { published: true },
+  orderBy: { order: 'asc' },
 });
 
-const services = (servicesPage?.content as typeof defaultServices) || defaultServices;
+// Normalize services for display
+const services = dbServices.map((s) => ({
+  id: s.id,
+  slug: s.slug,
+  title: s.title,
+  summary: s.summary,
+  href: `/services/${s.slug}`,
+}));
 ---
 
 <Layout

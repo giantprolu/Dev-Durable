@@ -9,46 +9,18 @@ import Button from '../components/Button.astro';
 import Card from '../components/Card.astro';
 import { prisma } from '../lib/prisma';
 
-// Default services with icons (icons are kept locally as they're not easily CMS-editable)
-const defaultServices = [
-  {
-    id: 'strategie-rse',
-    title: 'Stratégie RSE',
-    description: 'Définissez une stratégie de responsabilité sociétale alignée avec vos valeurs et les attentes de vos parties prenantes.',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-      <path d="M2 17l10 5 10-5"/>
-      <path d="M2 12l10 5 10-5"/>
-    </svg>`,
-    href: '/services/strategie-rse',
-  },
-  {
-    id: 'transition-ecologique',
-    title: 'Transition écologique',
-    description: 'Accompagnement vers une activité plus respectueuse de l\'environnement : bilan carbone, économie circulaire, éco-conception.',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-      <path d="M12 6v6l4 2"/>
-    </svg>`,
-    href: '/services/transition-ecologique',
-  },
-  {
-    id: 'formation',
-    title: 'Formation & sensibilisation',
-    description: 'Formez vos équipes aux enjeux du développement durable et engagez-les dans votre démarche de transformation.',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>`,
-    href: '/services/formation',
-  },
-];
+// Default icon for services
+const defaultIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+  <path d="M2 17l10 5 10-5"/>
+  <path d="M2 12l10 5 10-5"/>
+</svg>`;
 
 // Get services from database
-const servicesPage = await prisma.pageContent.findUnique({
-  where: { slug: 'services' },
+const dbServices = await prisma.service.findMany({
+  where: { published: true },
+  orderBy: { order: 'asc' },
+  take: 3, // Limit to 3 services for homepage
 });
 
 // Get home page content from database
@@ -69,26 +41,21 @@ const heroSubtitle = homeContent.heroSubtitle || 'AC-ingiénierie vous guide dan
 const heroCta = homeContent.ctaText || 'Découvrir nos services';
 const heroSecondaryCta = homeContent.secondaryCtaText || 'Nous contacter';
 
-// Merge database content with default icons
-type DbService = { id: string; title: string; summary: string; href: string };
-const dbServices = servicesPage?.content as DbService[] | null;
+// Default services if none in database
+const defaultServices = [
+  { title: 'Stratégie RSE', summary: 'Définissez une stratégie de responsabilité sociétale alignée avec vos valeurs.', slug: 'strategie-rse' },
+  { title: 'Transition écologique', summary: 'Accompagnement vers une activité plus respectueuse de l\'environnement.', slug: 'transition-ecologique' },
+  { title: 'Formation & sensibilisation', summary: 'Formez vos équipes aux enjeux du développement durable.', slug: 'formation' },
+];
 
-const services = dbServices
-  ? dbServices.map((dbService) => {
-      const defaultService = defaultServices.find((s) => s.id === dbService.id);
-      return {
-        title: dbService.title,
-        description: dbService.summary,
-        icon: defaultService?.icon || defaultServices[0].icon,
-        href: dbService.href,
-      };
-    })
-  : defaultServices.map((s) => ({
-      title: s.title,
-      description: s.description,
-      icon: s.icon,
-      href: s.href,
-    }));
+// Map services for display (use database or defaults)
+const servicesToShow = dbServices.length > 0 ? dbServices : defaultServices;
+const services = servicesToShow.map((service) => ({
+  title: service.title,
+  description: service.summary,
+  icon: defaultIcon,
+  href: `/services/${service.slug}`,
+}));
 
 const values = [
   {
