@@ -1,6 +1,3 @@
-- [ ] rendre la section " Pourquoi AC-Ingénierie ?" dans /acceuil responsive mobile
-- [ ] si je selectionne un slug d'article ne pas renvoyer vers une page mais faire le principe d'une recherche/filtre, et laisser le slug cliqué 
+- [x] rendre la section " Pourquoi AC-Ingénierie ?" dans /acceuil responsive mobile
+- [x] si je selectionne un slug d'article ne pas renvoyer vers une page mais faire le principe d'une recherche/filtre, et laisser le slug cliqué 
 - [x] ajouter un espacement entre les slug et les articles 
-- [x] rendre la page /admin responsive mobile
-- [x] revoir le design des boutons de decision dans l'admin (Nouveau, Editer, Supprimer)
-- [x] rendre differente toute la page admin et ses sous pages pour quelle ait un meilleur UX/UI mobile

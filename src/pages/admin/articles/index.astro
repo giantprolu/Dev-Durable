@@ -373,26 +373,42 @@ function buildUrl(page: number) {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0;
-    transition: transform 0.2s;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    display: inline-block;
   }
 
   .slug-search-btn:hover {
-    transform: scale(1.02);
+    background: var(--color-bg-secondary);
   }
 
   .slug-search-btn:hover code {
     background: var(--color-primary);
-    color: var(--color-white);
+    color: var(--color-ink);
+  }
+
+  .slug-search-btn.is-active {
+    background: var(--color-ink);
   }
 
   .slug-search-btn.is-active code {
-    background: var(--color-ink);
+    background: transparent;
     color: var(--color-white);
   }
 
+  .slug-search-btn code {
+    transition: all 0.2s ease;
+  }
+
   .td-slug {
-    padding-right: var(--space-6) !important;
+    padding-right: var(--space-8) !important;
+    white-space: nowrap;
+  }
+
+  /* Espacement entre colonnes titre et slug */
+  .data-table td:first-child {
+    padding-right: var(--space-6);
   }
 
   /* Mobile responsive - Admin Articles */

@@ -1634,7 +1634,7 @@ a.article-card:focus-visible {
 /* About grid responsive - Mobile */
 @media (max-width: 767px) {
   .about-grid {
-    gap: var(--space-6);
+    gap: var(--space-8);
   }
 
   .about-content {
@@ -1642,12 +1642,51 @@ a.article-card:focus-visible {
   }
 
   .about-content h2 {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-4);
   }
 
   .values-list {
     grid-template-columns: 1fr;
-    gap: var(--space-3);
+    gap: var(--space-4);
+  }
+
+  .about-content .lead {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-4);
+  }
+
+  .about-content p {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+  }
+
+  .value-title {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-2);
+  }
+
+  .value-description {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+  }
+
+  /* Cards dans values-list */
+  .values-list .card {
+    padding: var(--space-5);
+    border: var(--border-width-thick) solid var(--color-ink);
+  }
+}
+
+@media (max-width: 479px) {
+  .about-grid {
+    gap: var(--space-6);
+  }
+
+  .about-content h2 {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-tight);
   }
 
   .about-content .lead {
@@ -1658,6 +1697,16 @@ a.article-card:focus-visible {
     font-size: var(--font-size-sm);
   }
 
+  .about-content .btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: var(--space-4);
+  }
+
+  .values-list {
+    gap: var(--space-3);
+  }
+
   .value-title {
     font-size: var(--font-size-base);
   }
@@ -1665,30 +1714,10 @@ a.article-card:focus-visible {
   .value-description {
     font-size: var(--font-size-sm);
   }
-}
-
-@media (max-width: 479px) {
-  .about-grid {
-    gap: var(--space-5);
-  }
-
-  .about-content h2 {
-    font-size: var(--font-size-lg);
-    line-height: var(--line-height-tight);
-  }
-
-  .about-content .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .values-list {
-    gap: var(--space-2);
-  }
 
   /* Card style for values on mobile */
   .values-list .card {
-    padding: var(--space-3);
+    padding: var(--space-4);
     border-width: 2px;
   }
 }
