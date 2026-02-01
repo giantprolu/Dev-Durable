@@ -21,6 +21,13 @@ if (!user) {
 // Get stats
 const articleCount = await prisma.article.count();
 const mediaCount = await prisma.media.count();
+
+// Get services for dynamic listing
+const services = await prisma.service.findMany({
+  orderBy: { order: 'asc' },
+  select: { title: true },
+});
+const serviceCount = services.length;
 ---
 
 <Layout title="Administration">
@@ -71,12 +78,17 @@ const mediaCount = await prisma.media.count();
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             </div>
             <h3>Services</h3>
+            <p class="admin-card__count">{serviceCount} service{serviceCount !== 1 ? 's' : ''}</p>
             <p>Modifier les services proposés</p>
-            <ul>
-              <li>Formation</li>
-              <li>Stratégie RSE</li>
-              <li>Transition écologique</li>
-            </ul>
+            {services.length > 0 ? (
+              <ul>
+                {services.map(service => (
+                  <li>{service.title}</li>
+                ))}
+              </ul>
+            ) : (
+              <p class="admin-card__empty">Aucun service créé</p>
+            )}
           </a>
 
           <a href="/admin/media" class="admin-card admin-card--link">
@@ -285,6 +297,11 @@ const mediaCount = await prisma.media.count();
     width: 6px;
     height: 2px;
     background: var(--color-primary);
+  }
+
+  .admin-card__empty {
+    font-style: italic;
+    opacity: 0.7;
   }
 
   .admin-info {

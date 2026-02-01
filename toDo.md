@@ -1,5 +1,2 @@
-- [x] la partie Pourquoi "AC-ingiénierie ?" n'est pas responsive mobile et tablette
-- [x] crée des service en lien avec le developpement durable, la RSE et la transition écologique pour les entreprises.
-- [x] revoir l'UX/UI du formulaire de nouveau service/ Format
-- [x] "Section À propos" de la modification de page d'acceuil ne change rien donc supprimer cette partie dans admin
-- [x] dans l'ajout de format sur la création de services, l'image doit pouvoir être choisi dans la bibliothèque de média
+- [x] revoir l'ux ui et le design de format-editor-item__fields dans Modifier le service/ Format 
+- [x] au niveau de "Gestion du contenu" il faut rendre automatique les services listé dans "Services"
