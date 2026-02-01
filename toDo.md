@@ -1,2 +1,7 @@
-- [x] revoir l'ux ui et le design de format-editor-item__fields dans Modifier le service/ Format 
-- [x] au niveau de "Gestion du contenu" il faut rendre automatique les services listé dans "Services"
+- [x] améliorer le visuel UX/UI de de la section "Gestion du contenu" dans l'admin
+- [x] rendre la section " Pourquoi AC-Ingénierie ?" responsive mobile
+- [x] si je selectionne un slug d'article ne pas renvoyer vers une page mais faire le principe d'une recherche, et laisser le slug cliqué 
+- [x] ajouter un espacement entre les slug et les articles 
+- [x] rendre la page /admin responsive mobile
+- [x] revoir le design des boutons de decision dans l'admin (Nouveau, Editer, Supprimer)
+- [x] rendre differente toute la page admin et ses sous pages pour quelle ait un meilleur UX/UI mobile

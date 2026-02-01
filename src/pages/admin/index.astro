@@ -186,6 +186,19 @@ const serviceCount = services.length;
   .admin-section h2 {
     font-size: var(--font-size-xl);
     margin-bottom: var(--space-2);
+    color: var(--color-primary);
+    position: relative;
+    padding-bottom: var(--space-2);
+  }
+
+  .admin-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--color-primary);
   }
 
   .admin-section__desc {
@@ -201,72 +214,97 @@ const serviceCount = services.length;
 
   .admin-cards {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-4);
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 480px) {
     .admin-cards {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     .admin-cards {
       grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
     }
   }
 
   @media (min-width: 1280px) {
     .admin-cards {
       grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-6);
     }
   }
 
   .admin-card {
-    padding: var(--space-5);
-    border: var(--border-width) solid var(--color-border-light);
-    background: var(--color-surface);
+    padding: var(--space-4);
+    border: var(--border-width-thick) solid var(--color-ink);
+    background: var(--color-white);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .admin-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
   }
 
   .admin-card--link {
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
 
   .admin-card--link:hover {
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .admin-card--link:hover::before {
+    transform: scaleX(1);
   }
 
   .admin-card__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: var(--space-3);
-    color: var(--color-primary);
-    background: var(--color-bg-secondary);
-    border-radius: var(--radius-sm);
+    width: 56px;
+    height: 56px;
+    margin-bottom: var(--space-4);
+    color: var(--color-white);
+    background: var(--color-primary);
+    border: var(--border-width-thick) solid var(--color-ink);
   }
 
   .admin-card--link:hover .admin-card__icon {
-    background: var(--color-primary);
-    color: white;
+    background: var(--color-ink);
+    color: var(--color-white);
   }
 
   .admin-card h3 {
     font-size: var(--font-size-lg);
-    color: var(--color-primary);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-ink);
     margin-bottom: var(--space-2);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
   }
 
   .admin-card__count {
-    font-size: var(--font-size-2xl) !important;
+    font-size: var(--font-size-3xl) !important;
     font-weight: var(--font-weight-bold);
-    color: var(--color-text) !important;
+    color: var(--color-primary) !important;
     margin-bottom: var(--space-2) !important;
+    line-height: 1;
   }
 
   .admin-card p {
@@ -279,6 +317,9 @@ const serviceCount = services.length;
     list-style: none;
     padding: 0;
     margin: 0;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border-light);
   }
 
   .admin-card li {
@@ -294,7 +335,7 @@ const serviceCount = services.length;
     position: absolute;
     left: 0;
     top: 0.6em;
-    width: 6px;
+    width: 8px;
     height: 2px;
     background: var(--color-primary);
   }
@@ -308,6 +349,77 @@ const serviceCount = services.length;
     display: grid;
     grid-template-columns: auto 1fr;
     gap: var(--space-2) var(--space-6);
+  }
+
+  /* Mobile responsive - Admin Dashboard */
+  @media (max-width: 479px) {
+    .admin-dashboard {
+      padding: var(--space-4) var(--space-3);
+    }
+
+    .admin-header {
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+    }
+
+    .admin-header h1 {
+      font-size: var(--font-size-xl);
+    }
+
+    .admin-header__right {
+      width: 100%;
+    }
+
+    .admin-header__right .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .admin-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .admin-section h2 {
+      font-size: var(--font-size-lg);
+    }
+
+    .admin-cards {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+
+    .admin-card {
+      padding: var(--space-4);
+    }
+
+    .admin-card__icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .admin-card h3 {
+      font-size: var(--font-size-base);
+    }
+
+    .admin-card__count {
+      font-size: var(--font-size-2xl) !important;
+    }
+
+    .admin-info {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+
+    .admin-info dt {
+      font-weight: var(--font-weight-bold);
+      margin-top: var(--space-2);
+    }
+
+    .password-form {
+      max-width: 100%;
+    }
   }
 
   .admin-info dt {

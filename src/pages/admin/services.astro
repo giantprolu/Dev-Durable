@@ -292,6 +292,113 @@ const services = await prisma.service.findMany({
     flex-wrap: wrap;
   }
 
+  /* Mobile responsive - Services Admin */
+  @media (max-width: 767px) {
+    .admin-page {
+      padding: var(--space-4) var(--space-3);
+    }
+
+    .admin-page__header {
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .admin-page__header h1 {
+      font-size: var(--font-size-xl);
+    }
+
+    .admin-page__actions {
+      width: 100%;
+    }
+
+    .admin-page__actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .service-item-admin__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+
+    .service-item-admin__order {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      font-size: var(--font-size-base);
+    }
+
+    .service-item-admin {
+      position: relative;
+    }
+
+    .service-item-admin__info {
+      min-width: 100%;
+    }
+
+    .service-item-admin__status {
+      min-width: auto;
+    }
+
+    .service-item-admin__actions {
+      width: 100%;
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .service-item-admin__actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    /* Modal responsive */
+    .modal__content {
+      max-width: 100%;
+      max-height: 100vh;
+      border: none;
+    }
+
+    .modal__header {
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .modal__header h2 {
+      font-size: var(--font-size-lg);
+    }
+
+    .modal__body {
+      padding: var(--space-4);
+    }
+
+    .modal__footer {
+      padding: var(--space-3) var(--space-4);
+      flex-direction: column;
+    }
+
+    .modal__footer .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .form-tabs {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
+    }
+
+    .form-tab {
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .form-message {
     padding: var(--space-4);
     margin-bottom: var(--space-6);

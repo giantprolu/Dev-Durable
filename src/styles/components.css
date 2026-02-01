@@ -499,32 +499,85 @@ a.footer__contact-item:hover {
 /* Admin Button Variants — Clear visual distinction, brutalist style */
 .btn--edit {
   background-color: var(--color-white);
-  border-color: var(--color-ink);
+  border: var(--border-width-thick) solid var(--color-ink);
   color: var(--color-ink);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--edit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--color-ink);
+  transition: left 0.3s ease;
+  z-index: 0;
 }
 
 .btn--edit:hover {
-  background-color: var(--color-ink);
-  border-color: var(--color-ink);
   color: var(--color-white);
+}
+
+.btn--edit:hover::before {
+  left: 0;
+}
+
+.btn--edit svg,
+.btn--edit span {
+  position: relative;
+  z-index: 1;
 }
 
 .btn--danger {
   background-color: var(--color-white);
-  border-color: var(--color-error);
+  border: var(--border-width-thick) solid var(--color-error);
   color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--color-error);
+  transition: left 0.3s ease;
+  z-index: 0;
 }
 
 .btn--danger:hover {
-  background-color: var(--color-error);
-  border-color: var(--color-error);
   color: var(--color-white);
+}
+
+.btn--danger:hover::before {
+  left: 0;
+}
+
+.btn--danger svg,
+.btn--danger span {
+  position: relative;
+  z-index: 1;
 }
 
 .btn--success {
   background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  border: var(--border-width-thick) solid var(--color-primary);
   color: var(--color-ink);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .btn--success:hover {
@@ -535,8 +588,11 @@ a.footer__contact-item:hover {
 
 .btn--warning {
   background-color: var(--color-white);
-  border-color: var(--color-warning);
+  border: var(--border-width-thick) solid var(--color-warning);
   color: var(--color-warning);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .btn--warning:hover {
@@ -1561,6 +1617,7 @@ a.article-card:focus-visible {
 
   .about-content {
     max-width: 100%;
+    text-align: center;
   }
 
   .about-content h2 {
@@ -1576,6 +1633,18 @@ a.article-card:focus-visible {
 
 /* About grid responsive - Mobile */
 @media (max-width: 767px) {
+  .about-grid {
+    gap: var(--space-6);
+  }
+
+  .about-content {
+    text-align: left;
+  }
+
+  .about-content h2 {
+    font-size: var(--font-size-xl);
+  }
+
   .values-list {
     grid-template-columns: 1fr;
     gap: var(--space-3);
@@ -1588,20 +1657,39 @@ a.article-card:focus-visible {
   .about-content p {
     font-size: var(--font-size-sm);
   }
+
+  .value-title {
+    font-size: var(--font-size-base);
+  }
+
+  .value-description {
+    font-size: var(--font-size-sm);
+  }
 }
 
 @media (max-width: 479px) {
   .about-grid {
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
 
   .about-content h2 {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-tight);
   }
 
   .about-content .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .values-list {
+    gap: var(--space-2);
+  }
+
+  /* Card style for values on mobile */
+  .values-list .card {
+    padding: var(--space-3);
+    border-width: 2px;
   }
 }
 

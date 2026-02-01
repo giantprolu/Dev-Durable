@@ -131,7 +131,16 @@ function buildUrl(page: number) {
                     <br />
                     <small>{article.description.substring(0, 60)}...</small>
                   </td>
-                  <td><code>{article.slug}</code></td>
+                  <td class="td-slug">
+                    <button 
+                      type="button"
+                      class="slug-search-btn"
+                      data-slug={article.slug}
+                      title="Rechercher par ce slug"
+                    >
+                      <code>{article.slug}</code>
+                    </button>
+                  </td>
                   <td>
                     <span class={`status-badge ${article.published ? 'status-badge--published' : 'status-badge--draft'}`}>
                       {article.published ? 'Publié' : 'Brouillon'}
@@ -358,9 +367,189 @@ function buildUrl(page: number) {
     gap: var(--space-2);
     flex-wrap: wrap;
   }
+
+  /* Slug search button */
+  .slug-search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s;
+  }
+
+  .slug-search-btn:hover {
+    transform: scale(1.02);
+  }
+
+  .slug-search-btn:hover code {
+    background: var(--color-primary);
+    color: var(--color-white);
+  }
+
+  .slug-search-btn.is-active code {
+    background: var(--color-ink);
+    color: var(--color-white);
+  }
+
+  .td-slug {
+    padding-right: var(--space-6) !important;
+  }
+
+  /* Mobile responsive - Admin Articles */
+  @media (max-width: 767px) {
+    .admin-page {
+      padding: var(--space-4) var(--space-3);
+    }
+
+    .admin-page__header {
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .admin-page__header h1 {
+      font-size: var(--font-size-xl);
+    }
+
+    .admin-page__actions {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .admin-page__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .search-form {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .search-input-wrapper {
+      min-width: 100%;
+      max-width: 100%;
+    }
+
+    .search-form .btn {
+      width: 100%;
+    }
+
+    /* Transform table to card layout on mobile */
+    .data-table {
+      display: block;
+    }
+
+    .data-table thead {
+      display: none;
+    }
+
+    .data-table tbody {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .data-table tr {
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-4);
+      border: var(--border-width-thick) solid var(--color-ink);
+      background: var(--color-white);
+    }
+
+    .data-table td {
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-2) 0;
+      border: none;
+    }
+
+    .data-table td::before {
+      content: attr(data-label);
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing-wide);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-1);
+    }
+
+    .td-slug {
+      padding-right: 0 !important;
+    }
+
+    .action-buttons {
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .action-buttons .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .pagination {
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .pagination__buttons {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .action-buttons .btn {
+      width: 100%;
+    }
+  }
 </style>
 
 <script>
+  // Slug search functionality
+  document.querySelectorAll('.slug-search-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = e.currentTarget as HTMLButtonElement;
+      const slug = target.dataset.slug;
+      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+      
+      // Toggle: if same slug is clicked again, clear search
+      if (searchInput.value === slug) {
+        searchInput.value = '';
+        target.classList.remove('is-active');
+      } else {
+        // Clear previous active states
+        document.querySelectorAll('.slug-search-btn').forEach(b => b.classList.remove('is-active'));
+        // Set new value and active state
+        searchInput.value = slug || '';
+        target.classList.add('is-active');
+      }
+      
+      // Trigger search
+      const form = document.querySelector('.search-form') as HTMLFormElement;
+      form.submit();
+    });
+  });
+
+  // Mark active slug on page load
+  const currentSearch = new URLSearchParams(window.location.search).get('q');
+  if (currentSearch) {
+    document.querySelectorAll('.slug-search-btn').forEach((btn) => {
+      const target = btn as HTMLButtonElement;
+      if (target.dataset.slug === currentSearch) {
+        target.classList.add('is-active');
+      }
+    });
+  }
+
   document.querySelectorAll('.delete-btn').forEach((btn) => {
     btn.addEventListener('click', async (e) => {
       const target = e.target as HTMLButtonElement;

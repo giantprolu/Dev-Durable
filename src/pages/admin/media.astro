@@ -211,14 +211,52 @@ function formatFileSize(bytes: number): string {
     padding: 0 var(--space-3) var(--space-3);
   }
 
-  .btn--danger {
-    background: var(--color-error);
-    color: white;
-    border-color: var(--color-error);
+  /* Mobile responsive - Media page */
+  @media (max-width: 767px) {
+    .admin-page {
+      padding: var(--space-4) var(--space-3);
+    }
+
+    .admin-page__header {
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .admin-page__header h1 {
+      font-size: var(--font-size-xl);
+    }
+
+    .admin-page__actions {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .admin-page__actions .btn,
+    .admin-page__actions .upload-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .media-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+    }
+
+    .media-card__actions {
+      flex-direction: column;
+    }
+
+    .media-card__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
-  .btn--danger:hover {
-    background: #c0392b;
+  @media (max-width: 479px) {
+    .media-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 
