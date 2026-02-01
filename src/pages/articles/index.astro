@@ -62,7 +62,7 @@ function formatDate(date: Date): string {
     <!-- Tags filter -->
     <nav class="tag-list" aria-label="Filtrer par thématique">
       {allTags.map((tag) => (
-        <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-').normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`} class="tag">
+        <a href="#" class="tag" data-tag={tag}>
           {tag}
         </a>
       ))}
@@ -71,7 +71,7 @@ function formatDate(date: Date): string {
     <!-- Articles grid -->
     <div class="articles-grid">
       {articles.map((article) => (
-        <a href={`/articles/${article.slug}`} class="article-card">
+        <a href={`/articles/${article.slug}`} class="article-card" data-tags={JSON.stringify(article.tags)}>
           {article.image && (
             <div class="article-card__image">
               <img
@@ -98,5 +98,34 @@ function formatDate(date: Date): string {
         </a>
       ))}
     </div>
+
   </Section>
+
+  <script>
+    const filterTags = document.querySelectorAll<HTMLAnchorElement>('nav.tag-list .tag');
+    const articleCards = document.querySelectorAll<HTMLAnchorElement>('.articles-grid .article-card');
+    let activeTag: string | null = null;
+
+    filterTags.forEach((tag) => {
+      tag.addEventListener('click', (e) => {
+        e.preventDefault();
+        const selected = tag.dataset.tag;
+        if (!selected) return;
+
+        if (activeTag === selected) {
+          activeTag = null;
+          tag.classList.remove('is-active');
+        } else {
+          filterTags.forEach((t) => t.classList.remove('is-active'));
+          tag.classList.add('is-active');
+          activeTag = selected;
+        }
+
+        articleCards.forEach((card) => {
+          const tags: string[] = JSON.parse(card.dataset.tags!);
+          card.style.display = (!activeTag || tags.includes(activeTag)) ? '' : 'none';
+        });
+      });
+    });
+  </script>
 </Layout>

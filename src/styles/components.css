@@ -837,11 +837,20 @@ a.tag:focus-visible {
   outline-offset: var(--focus-ring-offset);
 }
 
+a.tag.is-active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
 .tag-list {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   list-style: none;
+}
+
+nav.tag-list {
+  margin-bottom: var(--space-8);
 }
 
 /* ==========================================================================
@@ -1626,7 +1635,7 @@ a.article-card:focus-visible {
 
   .values-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
   }
 }
@@ -1670,6 +1679,11 @@ a.article-card:focus-visible {
   .value-description {
     font-size: var(--font-size-base);
     line-height: var(--line-height-normal);
+  }
+
+  .about-content .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   /* Cards dans values-list */
