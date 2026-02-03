@@ -1,4 +1,1 @@
-- [ ] rendre la section " Pourquoi AC-Ingénierie ?" dans /acceuil responsive mobile
-- [ ] si je selectionne un slug d'article ne pas renvoyer vers une page mais faire le principe d'une recherche/filtre, et laisser le slug cliqué 
-- [ ] ajouter un espacement entre les slug et les articles 
-- [ ] bloquer sur TOUTES les pages le scroll horizontal
+- [x] rendre la section " Pourquoi AC-Ingénierie ?" dans /acceuil responsive mobile car sur iphone 15 ça ne l'est pas

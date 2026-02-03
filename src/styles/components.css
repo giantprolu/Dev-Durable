@@ -1072,6 +1072,8 @@ a.article-card:focus-visible {
 .about-grid {
   display: grid;
   gap: var(--space-10);
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (min-width: 1024px) {
@@ -1082,16 +1084,35 @@ a.article-card:focus-visible {
   }
 }
 
-.about-content { max-width: 50ch; }
-.about-content h2 { margin-bottom: var(--space-4); }
-.about-content p { color: var(--color-text-secondary); }
-.about-content .lead { color: var(--color-text-primary); margin-bottom: var(--space-4); }
+.about-content {
+  max-width: 50ch;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.about-content h2 {
+  margin-bottom: var(--space-4);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.about-content p {
+  color: var(--color-text-secondary);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.about-content .lead {
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-4);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 .about-content .btn { margin-top: var(--space-4); }
 
 .values-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  width: 100%;
+  max-width: 100%;
 }
 
 .value-title {
@@ -1099,6 +1120,8 @@ a.article-card:focus-visible {
   font-weight: var(--font-weight-semibold);
   color: var(--color-primary);
   margin-bottom: var(--space-1);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .value-description {
@@ -1106,6 +1129,8 @@ a.article-card:focus-visible {
   line-height: var(--line-height-normal);
   color: var(--color-text-secondary);
   margin-bottom: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .cta-content { max-width: 540px; }
@@ -1635,7 +1660,7 @@ a.article-card:focus-visible {
 
   .values-list {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: var(--space-4);
   }
 }
@@ -1643,7 +1668,7 @@ a.article-card:focus-visible {
 /* About grid responsive - Mobile */
 @media (max-width: 767px) {
   .about-grid {
-    gap: var(--space-8);
+    gap: var(--space-6);
   }
 
   .about-content {
@@ -1669,6 +1694,7 @@ a.article-card:focus-visible {
   .about-content p {
     font-size: var(--font-size-base);
     line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-3);
   }
 
   .value-title {
@@ -1684,6 +1710,7 @@ a.article-card:focus-visible {
   .about-content .btn {
     width: 100%;
     justify-content: center;
+    margin-top: var(--space-4);
   }
 
   /* Cards dans values-list */
@@ -1698,23 +1725,31 @@ a.article-card:focus-visible {
     gap: var(--space-6);
   }
 
+  .about-content {
+    text-align: left;
+  }
+
   .about-content h2 {
     font-size: var(--font-size-xl);
     line-height: var(--line-height-tight);
+    margin-bottom: var(--space-3);
   }
 
   .about-content .lead {
     font-size: var(--font-size-base);
+    margin-bottom: var(--space-3);
   }
 
   .about-content p {
     font-size: var(--font-size-sm);
+    margin-bottom: var(--space-3);
   }
 
   .about-content .btn {
     width: 100%;
     justify-content: center;
     margin-top: var(--space-4);
+    padding: var(--space-3) var(--space-4);
   }
 
   .values-list {
@@ -1723,10 +1758,13 @@ a.article-card:focus-visible {
 
   .value-title {
     font-size: var(--font-size-base);
+    margin-bottom: var(--space-2);
+    line-height: var(--line-height-tight);
   }
 
   .value-description {
     font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
   }
 
   /* Card style for values on mobile */
